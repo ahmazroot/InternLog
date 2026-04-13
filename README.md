@@ -67,5 +67,11 @@ A modern Internship Log Management System built with **Laravel** (Backend) and *
   docker-compose down
   ```
 
+## 👥 The Team
+
+- **Akhmas Asadulloh** - Project Manager
+- **Andika Arya Putra** - Front-End Developer
+- **Ahmad Gebyar Gumelar** - Back-End Developer
+
 ---
 *Created with ❤️ by Antigravity*
