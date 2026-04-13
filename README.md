@@ -1,6 +1,6 @@
 # 🚀 InternLog
 
-A modern Internship Log Management System built with **Laravel** (Backend) and **React/Next.js** (Frontend), fully containerized with **Docker**.
+**Mata Kuliah: Software Development**
 
 ## 🛠 Tech Stack
 
