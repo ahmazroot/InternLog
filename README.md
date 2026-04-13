@@ -2,12 +2,12 @@ Mata Kuliah: Software Development
 
 # 🚀 InternLog
 
-A modern Internship Log Management System built with **Laravel** (Backend) and **React/Next.js** (Frontend), fully containerized with **Docker**.
+A modern Internship Log Management System built with **Laravel** (Backend) and **React** (Frontend), fully containerized with **Docker**.
 
 ## 🛠 Tech Stack
 
 - **Backend**: Laravel 11.x (PHP 8.3)
-- **Frontend**: Next.js / Vite (React)
+- **Frontend**: Vite (React)
 - **Database**: MySQL 8.0
 - **Containerization**: Docker & Docker Compose
 - **Tools**: phpMyAdmin
