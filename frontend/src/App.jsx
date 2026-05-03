@@ -1,81 +1,118 @@
 import { useState, useEffect } from 'react'
-import { LoginButton } from './components/LoginButton'
+import { LoginPage } from './pages/LoginPage'
 import { authService } from './services/authService'
-import './App.css'
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
-  const [user, setUser] = useState(null)
+  const [user, setUser] = useState(() => authService.getUser())
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [sessionRestored, setSessionRestored] = useState(false)
+  const isAuthenticated = Boolean(user) || authService.isLoggedIn()
 
-  // Check login status on mount
   useEffect(() => {
-    const loggedIn = authService.isLoggedIn()
-    if (loggedIn) {
-      setIsLoggedIn(true)
-      setUser(authService.getUser())
+    const fetchUser = async () => {
+      if (!authService.isLoggedIn()) {
+        setLoading(false)
+        return
+      }
+
+      try {
+        const profile = await authService.fetchMe()
+        setUser(profile)
+        setError(null)
+        setSessionRestored(true)
+      } catch (err) {
+        authService.logout()
+        setUser(null)
+        setError('Sesi login berakhir, silakan login ulang')
+        setSessionRestored(false)
+      } finally {
+        setLoading(false)
+      }
     }
-    setLoading(false)
+
+    fetchUser()
   }, [])
 
-  const handleLoginSuccess = (response) => {
-    setIsLoggedIn(true)
-    setUser(response.user)
-    setError(null)
+  const handleLoginSuccess = async () => {
+    try {
+      const profile = await authService.fetchMe()
+      setUser(profile)
+      setError(null)
+      setSessionRestored(false)
+    } catch (err) {
+      setError(err.message || 'Gagal mengambil data user')
+    }
   }
 
-  const handleLoginError = (error) => {
-    setError(error.message || 'Login failed')
+  const handleLoginError = (err) => {
+    setError(err.message || 'Login failed')
   }
 
   const handleLogout = () => {
     authService.logout()
-    setIsLoggedIn(false)
     setUser(null)
+    setError(null)
+    setSessionRestored(false)
   }
 
   if (loading) {
-    return <div className="loading">Loading...</div>
+    return (
+      <div className="grid min-h-screen place-items-center bg-violet-300 text-slate-800">
+        Loading...
+      </div>
+    )
   }
 
   return (
-    <div className="app-container">
-      <header className="app-header">
-        <h1>InternLog - Google OAuth Demo</h1>
+    <div className="min-h-screen bg-violet-300 px-4 py-5 md:px-6">
+      <header className="mx-auto mb-3 w-full max-w-5xl">
+        <h1 className="m-0 text-sm font-semibold uppercase tracking-[0.08em] text-violet-50">
+          InternLog - Google OAuth Demo
+        </h1>
       </header>
 
-      <main className="app-main">
-        {error && <div className="error-message">{error}</div>}
-
-        {!isLoggedIn ? (
-          <div className="login-section">
-            <h2>Welcome</h2>
-            <p>Click the button below to login with your Google account</p>
-            <LoginButton
-              onLoginSuccess={handleLoginSuccess}
-              onLoginError={handleLoginError}
-            />
+      <main className="mx-auto w-full max-w-5xl">
+        {error && (
+          <div className="mb-4 rounded-xl border border-red-200 bg-red-100 px-4 py-3 text-center text-sm text-red-700">
+            {error}
           </div>
+        )}
+
+        {!isAuthenticated ? (
+          <LoginPage
+            onLoginSuccess={handleLoginSuccess}
+            onLoginError={handleLoginError}
+          />
         ) : (
-          <div className="logged-in-section">
-            <h2>Login Successful!</h2>
-            <div className="user-info">
-              <p>
+          <div className="rounded-2xl border border-slate-200 bg-white p-7 shadow-xl shadow-slate-900/10">
+            <h2 className="mb-3 text-2xl font-semibold text-slate-800">
+              Login Successful!
+            </h2>
+            {sessionRestored && (
+              <p className="mb-4 text-sm font-medium text-emerald-700">
+                Session restored
+              </p>
+            )}
+            <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+              <p className="m-0">
                 <strong>Name:</strong> {user?.name || 'N/A'}
               </p>
-              <p>
+              <p className="mt-2">
                 <strong>Email:</strong> {user?.email || 'N/A'}
               </p>
               {user?.profile_picture && (
                 <img
                   src={user.profile_picture}
                   alt="Profile"
-                  className="profile-picture"
+                  className="mx-auto mt-4 block h-24 w-24 rounded-full object-cover"
                 />
               )}
             </div>
-            <button className="logout-button" onClick={handleLogout}>
+            <button
+              className="mt-4 rounded-xl bg-red-600 px-4 py-2 text-white transition hover:-translate-y-0.5 hover:bg-red-700"
+              onClick={handleLogout}
+            >
               Logout
             </button>
           </div>
