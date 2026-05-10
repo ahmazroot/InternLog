@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Support\Facades\Log;
+use Firebase\JWT\JWT;
 
 class AuthController extends Controller
 {
@@ -28,16 +29,33 @@ class AuthController extends Controller
                 ]
             );
 
-            $token = $user->createToken('auth-token')->plainTextToken;
+            $payload = [
+                'user_id' => $user->id,
+                'exp' => time() + (5 * 60 * 60) // 5 hours
+            ];
+
+            $token = JWT::encode($payload, env('JWT_SECRET'), 'HS256');
 
             return response()->json([
+                'success' => true,
                 'message' => 'Login successful',
-                'user' => $user,
-                'token' => $token
+                'data' => [
+                    'access_token' => $token
+                ]
             ]);
         } catch (\Exception $e) {
             Log::error('Google login error: ' . $e->getMessage());
-            return response()->json(['message' => 'Invalid credentials or token'], 401);
+            return response()->json(['success' => false, 'message' => 'Invalid credentials or token'], 401);
         }
+    }
+
+    public function me()
+    {
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'user' => auth()->user()
+            ]
+        ]);
     }
 }
