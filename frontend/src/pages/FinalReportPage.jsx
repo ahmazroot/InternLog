@@ -94,7 +94,6 @@ export function FinalReportPage({ user, onLogout }) {
           }
 
           // Periksa progress pengerjaan log untuk Laporan Akhir
-          const totalTimelineDays = currentMagang?.timeline || 90
           const actualLogsCount = collectedLogs.length
           const pct = Math.min(100, Math.round((actualLogsCount / totalTimelineDays) * 100))
 
