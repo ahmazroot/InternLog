@@ -1,6 +1,6 @@
 /**
  * Domain Helper
- * Membantu deteksi kategori domain industri magang (IT, Marketing, Admin, Finance, Medical, Education, Umum)
+ * Membantu deteksi kategori domain industri magang (IT, Pemasaran, Administrasi/HRD, Keuangan, Medis, Pendidikan, Umum)
  * dan menyediakan generator data simulasi (mock) yang sangat relevan dengan disiplin ilmu masing-masing.
  */
 
@@ -165,6 +165,17 @@ const DOMAIN_CONFIGS = {
       Bandung: [
         { nama_perusahaan: 'Agate Studio (Bandung)', alamat: 'Kawasan Bandung Techno Park, Bandung', kontak: 'careers.agate.id', alasan_kecocokan: 'Studio game dan pengembangan perangkat interaktif multinasional.' }
       ],
+      Malang: [
+        { nama_perusahaan: 'Malang Creative Center (MCC)', alamat: 'Jl. A. Yani, Blimbing, Malang', kontak: 'mcc.or.id', alasan_kecocokan: 'Pusat inkubator teknologi dan startup digital kreatif Jawa Timur.' }
+      ],
+      Singapura: [
+        { nama_perusahaan: 'Shopee Singapore', alamat: 'Shopee Building, Science Park Road, Singapore', kontak: 'careers.shopee.sg', alasan_kecocokan: 'Raksasa e-commerce global untuk optimalisasi sistem berskala dunia.' },
+        { nama_perusahaan: 'Grab Singapore', alamat: 'Grab Headquarters, One-North, Singapore', kontak: 'careers.grab.com', alasan_kecocokan: 'Sangat cocok untuk memperdalam pengerjaan pilar mobilitas regional.' }
+      ],
+      Malaysia: [
+        { nama_perusahaan: 'Grab Malaysia', alamat: 'Grab Tower, Petaling Jaya, Selangor', kontak: 'careers.grab.com', alasan_kecocokan: 'Pusat rekayasa perangkat lunak terbesar bagi tim logistik Grab regional.' },
+        { nama_perusahaan: 'Mindvalley Malaysia', alamat: 'Menara UOA, Bangsar, Kuala Lumpur', kontak: 'careers.mindvalley.com', alasan_kecocokan: 'Perusahaan teknologi pendidikan global dengan standar visual antarmuka premium.' }
+      ],
       default: [
         { nama_perusahaan: 'PT Telkom Indonesia', alamat: 'Kantor Wilayah Telekomunikasi Setempat', kontak: 'recruitment.telkom.co.id', alasan_kecocokan: 'Peluang magang dan karir IT infrastruktur nasional terbesar.' }
       ]
@@ -212,6 +223,15 @@ const DOMAIN_CONFIGS = {
       Bandung: [
         { nama_perusahaan: 'Sembilan Matahari (Bandung)', alamat: 'Jl. Muararajeun, Cibeunying, Bandung', kontak: 'info@sembilanmatahari.com', alasan_kecocokan: 'Studio kreatif visual art dan kampanye interaktif digital.' }
       ],
+      Malang: [
+        { nama_perusahaan: 'Heroosoft Media Malang', alamat: 'Jl. Sigura-gura, Lowokwaru, Malang', kontak: 'contact@heroosoft.com', alasan_kecocokan: 'Digital branding agency lokal untuk optimasi engagement media sosial UMKM Malang.' }
+      ],
+      Singapura: [
+        { nama_perusahaan: 'Dentsu Singapore', alamat: 'Guoco Tower, Wallich Street, Singapore', kontak: 'careers.dentsu.com', alasan_kecocokan: 'Agensi komunikasi pemasaran global berskala internasional.' }
+      ],
+      Malaysia: [
+        { nama_perusahaan: 'Leo Burnett Malaysia', alamat: 'Menara Southpoint, Mid Valley City, Kuala Lumpur', kontak: 'careers.leoburnett.com', alasan_kecocokan: 'Agensi periklanan kreatif terkemuka di Asia Tenggara.' }
+      ],
       default: [
         { nama_perusahaan: 'Agensi Pemasaran Lokal', alamat: 'Pusat Area Komersial Terdekat', kontak: 'info@agensikreatif.com', alasan_kecocokan: 'Pengembangan identitas visual produk-produk UMKM regional.' }
       ]
@@ -250,11 +270,17 @@ const DOMAIN_CONFIGS = {
     perusahaan: {
       Surabaya: [
         { nama_perusahaan: 'PT PAL Indonesia (Surabaya)', alamat: 'Jl. Ujung, Semampir, Surabaya', kontak: 'hr@pal.co.id', alasan_kecocokan: 'BUMN industri perkapalan dengan tata kelola manajemen SDM yang sangat terstruktur.' },
-        { nama_perusahaan: 'Bank Jatim (Surabaya)', alamat: 'Jl. Basuki Rahmat, Surabaya', kontak: 'rekrutmen@bankjatim.co.id', alasan_kecocokan: 'Administrasi keuangan daerah yang presisi dengan standar operasional ketat.' }
+        { nama_perusahaan: 'Bank Jatim (Surabaya)', alamat: 'Jl. Basuki Rahmat, Surabaya', kontak: 'rekrutmen@bankjatim.co.id', alasan_kecocokan: 'Administrasi perbankan daerah yang presisi dengan standar operasional ketat.' }
       ],
       Jakarta: [
-        { nama_perusahaan: 'PT Astra International (Jakarta)', alamat: 'Jl. Gaya Motor Raya, Sunter, Jakarta Utara', kontak: 'recruitment@astra.co.id', alasan_kecocokan: 'Manajemen korporasi multisektor terbesar dengan standar rekrutmen unggulan.' },
+        { nama_perusahaan: 'PT Astra International (Jakarta)', alamat: 'Jl. Gaya Motor Raya, Sunter, Jakarta Utara', kontak: 'recruitment@astra.co.id', alasan_kecocokan: 'Manajemen korporasi multisektor terbesar dengan standar rekrutmen perkantoran unggulan.' },
         { nama_perusahaan: 'Bank Mandiri (Jakarta)', alamat: 'Plaza Mandiri, Jenderal Gatot Subroto, Jakarta', kontak: 'hr.recruitment@bankmandiri.co.id', alasan_kecocokan: 'Pengelolaan operasional perkantoran skala nasional yang masif.' }
+      ],
+      Singapura: [
+        { nama_perusahaan: 'Singtel Singapore', alamat: 'Singtel Centre, George Street, Singapore', kontak: 'recruitment@singtel.com', alasan_kecocokan: 'Pengelolaan operasional korporat dengan standar kualitas SDM terbaik.' }
+      ],
+      Malaysia: [
+        { nama_perusahaan: 'Maybank Malaysia', alamat: 'Menara Maybank, Jalan Tun Perak, Kuala Lumpur', kontak: 'careers@maybank.com', alasan_kecocokan: 'Penyusunan berkas SOP administrasi perbankan bertaraf internasional.' }
       ],
       default: [
         { nama_perusahaan: 'Kantor Pemerintahan / BUMN Setempat', alamat: 'Pusat Balai Kota atau Kantor Dinas Terdekat', kontak: 'info@pemda.go.id', alasan_kecocokan: 'Pelayanan administrasi publik terpadu satu pintu.' }
@@ -300,6 +326,12 @@ const DOMAIN_CONFIGS = {
         { nama_perusahaan: 'PwC Indonesia (Jakarta)', alamat: 'Plaza 89, Jl. HR Rasuna Said, Jakarta', kontak: 'careers.pwc@id.pwc.com', alasan_kecocokan: 'Agensi audit dan konsultasi keuangan Big Four terdepan di Indonesia.' },
         { nama_perusahaan: 'Bank Central Asia (BCA)', alamat: 'Menara BCA, Grand Indonesia, Jakarta', kontak: 'recruitment@bca.co.id', alasan_kecocokan: 'Manajemen perbankan swasta terbesar dengan tata kelola risiko terbaik.' }
       ],
+      Singapura: [
+        { nama_perusahaan: 'DBS Bank Singapore', alamat: 'DBS Asia Central, Marina Bay Financial Centre, Singapore', kontak: 'careers@dbs.com', alasan_kecocokan: 'Institusi finansial terbesar di Asia Tenggara dengan standar laporan dunia.' }
+      ],
+      Malaysia: [
+        { nama_perusahaan: 'CIMB Group Malaysia', alamat: 'Menara CIMB, KL Sentral, Kuala Lumpur', kontak: 'careers@cimb.com', alasan_kecocokan: 'Manajemen perbendaharaan bank internasional dan kepatuhan perpajakan.' }
+      ],
       default: [
         { nama_perusahaan: 'Kantor Akuntan Publik (KAP) Setempat', alamat: 'Area Pusat Bisnis Kota Terdekat', kontak: 'info@kaplokal.com', alasan_kecocokan: 'Pembukuan laporan keuangan dan audit bisnis regional.' }
       ]
@@ -343,6 +375,12 @@ const DOMAIN_CONFIGS = {
       Jakarta: [
         { nama_perusahaan: 'Rumah Sakit Cipto Mangunkusumo (RSCM)', alamat: 'Jl. Pangeran Diponegoro, Jakarta Pusat', kontak: 'humas@rscm.co.id', alasan_kecocokan: 'Pusat rujukan medis nasional dan rumah sakit pendidikan terbaik.' },
         { nama_perusahaan: 'Siloam Hospitals Group', alamat: 'Kawasan Siloam Kebon Jeruk, Jakarta', kontak: 'careers@siloamhospitals.com', alasan_kecocokan: 'Jaringan rumah sakit swasta terbesar di Indonesia dengan tata kelola digital.' }
+      ],
+      Singapura: [
+        { nama_perusahaan: 'Singapore General Hospital (SGH)', alamat: 'Outram Road, Singapore', kontak: 'sgh.com.sg', alasan_kecocokan: 'Rumah sakit tertua dan terbesar di Singapura dengan fasilitas terapi tercanggih.' }
+      ],
+      Malaysia: [
+        { nama_perusahaan: 'Kuala Lumpur General Hospital', alamat: 'Jalan Pahang, Kuala Lumpur', kontak: 'hkl.gov.my', alasan_kecocokan: 'Pusat pelayanan medis terpadu nasional Malaysia dengan asuhan keperawatan terstandar.' }
       ],
       default: [
         { nama_perusahaan: 'Rumah Sakit Umum Daerah (RSUD) Setempat', alamat: 'Pusat Layanan Kesehatan Wilayah', kontak: 'info@rsudlokal.go.id', alasan_kecocokan: 'Pengabdian pelayanan rawat jalan dan darurat medis daerah setempat.' }
@@ -388,6 +426,12 @@ const DOMAIN_CONFIGS = {
         { nama_perusahaan: 'BPK Penabur Jakarta', alamat: 'BPK Education Center, Jakarta', kontak: 'recruitment@penabur.or.id', alasan_kecocokan: 'Jaringan sekolah swasta terkemuka dengan kurikulum disiplin tinggi.' },
         { nama_perusahaan: 'Ruangguru Pusat (Jakarta)', alamat: 'Kuningan, Jakarta Selatan', kontak: 'recruitment@ruangguru.com', alasan_kecocokan: 'Perusahaan teknologi pendidikan (EdTech) terbesar di Asia Tenggara.' }
       ],
+      Singapura: [
+        { nama_perusahaan: 'National University of Singapore (NUS)', alamat: 'Kent Ridge, Singapore', kontak: 'nus.edu.sg', alasan_kecocokan: 'Universitas riset global terkemuka bagi pemetaan inovasi kurikulum modern.' }
+      ],
+      Malaysia: [
+        { nama_perusahaan: 'Universiti Malaya (UM)', alamat: 'Jalan Universiti, Kuala Lumpur', kontak: 'um.edu.my', alasan_kecocokan: 'Universitas tertua dengan standar pengembangan media ajar terbaik.' }
+      ],
       default: [
         { nama_perusahaan: 'Sekolah / Lembaga Pendidikan Setempat', alamat: 'Dinas Pendidikan Area Terdekat', kontak: 'info@sekolahsetempat.sch.id', alasan_kecocokan: 'Pengabdian mendidik generasi bangsa di daerah asal.' }
       ]
@@ -431,6 +475,12 @@ const DOMAIN_CONFIGS = {
       Jakarta: [
         { nama_perusahaan: 'PT Telkom Indonesia (Jakarta)', alamat: 'Kawasan Gatot Subroto, Jakarta Selatan', kontak: 'careers@telkom.co.id', alasan_kecocokan: 'BUMN telekomunikasi terbesar dengan ragam divisi operasional.' },
         { nama_perusahaan: 'PT Astra International (Jakarta)', alamat: 'Sunter, Jakarta Utara', kontak: 'recruitment@astra.co.id', alasan_kecocokan: 'Konglomerasi besar multi-industri dengan jenjang karir manajerial terintegrasi.' }
+      ],
+      Singapura: [
+        { nama_perusahaan: 'Keppel Corporation', alamat: 'Keppel Bay Tower, HarbourFront Place, Singapore', kontak: 'keppel.com', alasan_kecocokan: 'Konglomerasi multinasional besar untuk melatih sistem operasional kelas dunia.' }
+      ],
+      Malaysia: [
+        { nama_perusahaan: 'Petronas Malaysia', alamat: 'Petronas Twin Towers, KLCC, Kuala Lumpur', kontak: 'careers.petronas.com', alasan_kecocokan: 'Perusahaan energi nasional terbesar dengan tata kelola proyek multinasional.' }
       ],
       default: [
         { nama_perusahaan: 'Instansi Swasta / BUMN / BUMD Terdekat', alamat: 'Kawasan Bisnis Pusat Kota Terdekat', kontak: 'info@instansilokal.com', alasan_kecocokan: 'Pengalaman operasional dan manajerial terintegrasi.' }
@@ -521,12 +571,17 @@ export function getDomainMockWeekly(namaMagang, weekNumber, collectedLogs = []) 
 }
 
 /**
- * Menghasilkan evaluasi laporan akhir tiruan (mock) berdasar nama magang & kota
+ * Menghasilkan evaluasi laporan akhir tiruan (mock) berdasar nama magang & lokasi geografis
  */
-export function getDomainMockFinalReport(namaMagang, magangInfo = {}, collectedLogs = [], city = 'Surabaya') {
+export function getDomainMockFinalReport(namaMagang, magangInfo = {}, collectedLogs = []) {
   const domain = detectDomain(namaMagang || magangInfo.nama)
   const config = getDomainConfig(domain)
   
+  // Parse tempat_magang to retrieve "Kota, Provinsi, Negara"
+  const locationParts = magangInfo.tempat_magang ? magangInfo.tempat_magang.split(', ') : []
+  const city = locationParts[0] || 'Surabaya'
+  const country = locationParts[2] || 'Indonesia'
+
   // Format list hard & soft skills
   const total_soft_skills = config.softSkills.map(s => ({
     nama_skill: s.nama_skill,
@@ -540,8 +595,24 @@ export function getDomainMockFinalReport(namaMagang, magangInfo = {}, collectedL
     deskripsi_perkembangan: s.bukti
   }))
 
-  // Ambil list perusahaan berdasarkan kota
-  const listPerusahaan = config.perusahaan[city] || config.perusahaan['default']
+  // Resolve localized companies based on Country and City
+  let listPerusahaan = config.perusahaan['default']
+  
+  if (country === 'Singapura' || country === 'Singapore') {
+    listPerusahaan = config.perusahaan['Singapura'] || config.perusahaan['default']
+  } else if (country === 'Malaysia') {
+    listPerusahaan = config.perusahaan['Malaysia'] || config.perusahaan['default']
+  } else if (country === 'Indonesia') {
+    if (city.startsWith('Jakarta')) {
+      listPerusahaan = config.perusahaan['Jakarta'] || config.perusahaan['default']
+    } else if (city === 'Surabaya') {
+      listPerusahaan = config.perusahaan['Surabaya'] || config.perusahaan['default']
+    } else if (city === 'Bandung') {
+      listPerusahaan = config.perusahaan['Bandung'] || config.perusahaan['default']
+    } else if (city === 'Malang') {
+      listPerusahaan = config.perusahaan['Malang'] || config.perusahaan['default']
+    }
+  }
 
   // Kompilasi pencapaian & tantangan
   const pencapaian = collectedLogs.length > 0
