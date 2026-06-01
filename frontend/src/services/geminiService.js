@@ -79,13 +79,13 @@ ${logText}
 Kembalikan hasil analisis Anda dalam format JSON yang valid dengan skema berikut:
 {
   "tanggal_analisis": "ISO Date string hari ini (misal YYYY-MM-DD)",
-  "kategori_aktivitas": "Satu kata kategori aktivitas utama (contoh: Teknis, Komunikasi, Desain, Riset, Administrasi, dll.)",
+  "kategori_aktivitas": "Satu kata kategori aktivitas utama (contoh: Teknis, Pemasaran, Keuangan, Medis, Pendidikan, Administrasi, Desain, Riset, dll.)",
   "ringkasan_aktivitas": "1-2 kalimat ringkasan profesional mengenai apa yang diselesaikan hari ini berdasarkan catatan di atas.",
   "soft_skills": [
-    { "nama_skill": "Nama soft skill yang ditunjukkan (contoh: Kemandirian, Pemecahan Masalah, Kerja Keras, Ketelitian)", "bukti": "Kalimat bukti nyata bagaimana mahasiswa menunjukkan skill tersebut berdasarkan catatannya" }
+    { "nama_skill": "Nama soft skill yang ditunjukkan (contoh: Kemandirian, Empati Terapeutik, Ketelitian, Kerja Keras, Kesabaran, Pemecahan Masalah)", "bukti": "Kalimat bukti nyata bagaimana mahasiswa menunjukkan skill tersebut berdasarkan catatannya" }
   ],
   "hard_skills": [
-    { "nama_skill": "Nama hard skill / teknologi / metodologi yang dipakai (contoh: React.js, Laravel, Git, UI/UX Design, CSS, Testing)", "bukti": "Kalimat bukti nyata implementasi hard skill tersebut berdasarkan catatannya" }
+    { "nama_skill": "Nama hard skill / teknologi / metodologi yang dipakai (contoh: React.js, Asuhan Keperawatan, Riset Pasar, Akuntansi Dasar, RPP Ajar, Copywriting, Excel Formula)", "bukti": "Kalimat bukti nyata implementasi hard skill tersebut berdasarkan catatannya" }
   ],
   "pembelajaran_utama": [
     "Satu poin pelajaran berharga atau temuan baru yang mahasiswa dapatkan hari ini (maksimalkan 2 poin)"
@@ -156,7 +156,7 @@ Ketentuan Khusus:
   /**
    * Aggregate all logs for the final report evaluation
    */
-  analyzeFinalReport: async (logsArray) => {
+  analyzeFinalReport: async (logsArray, userLocation = 'Indonesia') => {
     const totalDays = logsArray.length
     const logsText = logsArray
       .map(
@@ -169,8 +169,10 @@ Skills: ${[...(log.ai_feedback?.hard_skills || []), ...(log.ai_feedback?.soft_sk
       .join('\n\n')
 
     const prompt = `
-Anda adalah Mentor Magang AI (AI Internship Mentor) Senior.
+Anda adalah Mentor Magang AI (AI Internship Mentor) Senior yang berpengalaman luas di berbagai bidang industri (Bisnis, Teknologi, Administrasi, Keuangan, Desain/Kreatif, Kesehatan, Pendidikan, Hukum, dll.).
 Tugas Anda adalah mengevaluasi seluruh portofolio aktivitas mahasiswa selama periode magang (${totalDays} hari aktif) untuk menyusun Laporan Akhir Magang (Final Report).
+
+Lokasi / Domisili Mahasiswa saat ini: "${userLocation}"
 
 Berikut adalah rangkuman seluruh catatan aktivitas magang mahasiswa:
 """
@@ -183,23 +185,32 @@ Kembalikan hasil analisis evaluasi akhir dalam format JSON yang valid dengan ske
   "average_productivity": Rata-rata skor produktivitas selama magang (Desimal antara 1.0 sampai 5.0),
   "kesimpulan_evaluasi": "Narasi kesimpulan evaluasi akhir setebal 3-4 kalimat. Ulas pencapaian terbesar mahasiswa, kemajuannya dari awal hingga akhir magang, dan testimoni kualitatif atas kinerjanya.",
   "monthly_progress": [
-    { "bulan": "Bulan 1", "ringkasan": "Ringkasan perkembangan dan capaian utama di bulan pertama (misal: adaptasi sistem, pengerjaan UI dasar)" },
-    { "bulan": "Bulan 2", "ringkasan": "Ringkasan perkembangan dan capaian utama di bulan kedua (misal: integrasi sistem, pengerjaan logika kompleks)" }
+    { "bulan": "Bulan 1", "ringkasan": "Ringkasan perkembangan dan capaian utama di bulan pertama (misal: adaptasi alur kerja, penguasaan materi dasar)" },
+    { "bulan": "Bulan 2", "ringkasan": "Ringkasan perkembangan dan capaian utama di bulan kedua (misal: pengerjaan tugas inti secara mandiri, pemecahan masalah)" }
   ],
   "competencies": [
     { "nama_skill": "Nama keahlian utama (gabungan soft & hard skill terkuat)", "bukti": "Ringkasan bukti kumulatif penguasaan keahlian ini selama magang", "level": "Pilih salah satu tingkat penguasaan: 'Pemula', 'Berkembang', 'Kompeten', atau 'Mahir'" }
   ],
   "rekomendasi_karir": {
-    "karir_cocok": "Nama posisi karir / profesi industri yang sangat cocok bagi mahasiswa (contoh: Frontend Developer, React Developer, Fullstack Engineer, UI/UX Designer)",
+    "karir_cocok": "Nama posisi karir / profesi industri yang sangat cocok bagi mahasiswa (contoh: Frontend Developer, Admin HRD, Social Media Specialist, Akuntan, Desainer Grafis, Staff Operasional, dll. sesuai bidang magangnya)",
     "alasan": "Alasan detail mengapa karir tersebut sangat cocok bagi mahasiswa berdasarkan bukti keahlian yang dia tunjukkan selama magang.",
-    "saran_pengembangan": "Saran pengembangan karir / keahlian taktis masa depan agar mahasiswa lebih bersaing di industri (contoh: mempelajari State Management lanjutan seperti Redux, atau memperdalam Unit Testing)."
+    "saran_pengembangan": "Saran pengembangan karir / keahlian taktis masa depan agar mahasiswa lebih bersaing di industri (contoh: memperdalam teknik riset pemasaran, atau mempelajari tools otomasi administrasi).",
+    "rekomendasi_perusahaan": [
+      {
+        "nama_perusahaan": "Nama perusahaan / kantor / startup / agensi / BUMN / instansi / rumah sakit / sekolah nyata yang berlokasi di daerah ${userLocation} (atau sekitarnya) yang sangat relevan dengan bidang keahlian mahasiswa (contoh: Siloam Hospitals untuk Kesehatan, Ruangguru/Sekolah untuk Pendidikan, PwC untuk Akuntansi, Gojek untuk IT, Astra untuk Administrasi/Marketing)",
+        "alamat": "Alamat jalan nyata atau perkiraan lokasi kantor instansi tersebut di kota tersebut",
+        "kontak": "Situs web resmi atau email rekrutmen perkiraan instansi tersebut (contoh: careers.tokopedia.com atau recruitment@bankmandiri.co.id atau humas@rscm.co.id)",
+        "alasan_kecocokan": "1 kalimat penjelasan mengapa keahlian mahasiswa sangat cocok dengan kebutuhan perusahaan/instansi ini"
+      }
+    ]
   }
 }
 
 Ketentuan Khusus:
 1. Respon HARUS berupa JSON murni yang valid tanpa tambahan markdown atau teks pembuka/penutup lainnya.
 2. Gunakan bahasa Indonesia yang profesional, memuji pencapaian positif, namun tetap memberikan arahan karir yang realistis dan berharga.
-3. Batasi kompetensi terkuat maksimal 4-5 keahlian utama.
+3. Berikan maksimal 3 rekomendasi perusahaan / instansi riil di daerah "${userLocation}" (jika di daerah kecil, sebutkan BUMN, sekolah, rumah sakit, instansi pemerintahan daerah setempat, atau opsi kerja remote).
+4. Batasi kompetensi terkuat maksimal 4-5 keahlian utama.
 `
     return geminiService.generateStructuredJSON(prompt)
   }

@@ -5,6 +5,7 @@ import { magangService } from '../services/magangService'
 import logoUrl from '../assets/images/logo.png'
 import { TrendingUp, TrendingDown, Minus, ArrowLeft, BrainCircuit } from 'lucide-react'
 import { geminiService } from '../services/geminiService'
+import { getDomainMockWeekly } from '../services/domainHelper'
 
 export function WeeklySummaryPage({ user, onLogout }) {
   const { id } = useParams()
@@ -157,28 +158,7 @@ export function WeeklySummaryPage({ user, onLogout }) {
 
         // Fallback mock data jika tidak pakai Gemini / Gemini error
         if (!weeklyResult) {
-          weeklyResult = {
-            week_number: Number(weekNumber),
-            magang_id: Number(id),
-            total_days_in_week: 7,
-            analyzed_days: collectedLogs.length,
-            summary: {
-              periode: `Minggu ke-${weekNumber} (Hari ${startDay}-${endDay})`,
-              ringkasan_minggu: `Selama minggu ke-${weekNumber}, mahasiswa menunjukkan performa yang sangat progresif. Kemampuan implementasi teknis harian dan koordinasi fungsional di lingkungan magang berjalan dengan baik.`,
-              highlight_aktivitas: collectedLogs.map((l) => l.ai_feedback?.ringkasan_aktivitas).filter(Boolean).slice(0, 3),
-              soft_skills_dominan: [
-                { nama_skill: "Kemandirian", frekuensi: Math.max(1, collectedLogs.length - 1), tren: "Meningkat" },
-                { nama_skill: "Ketelitian", frekuensi: Math.max(1, Math.floor(collectedLogs.length / 2)), tren: "Stabil" }
-              ],
-              hard_skills_dominan: [
-                { nama_skill: "React.js", frekuensi: Math.max(1, collectedLogs.length - 1), tren: "Meningkat" },
-                { nama_skill: "CSS Styling", frekuensi: Math.max(1, Math.floor(collectedLogs.length / 2)), tren: "Stabil" }
-              ],
-              perkembangan_utama: "Mampu mengimplementasikan logika frontend dengan BlockNote editor dan menyusun struktur layout responsif.",
-              area_perbaikan: "Perlu mengoptimalkan efisiensi state update pada rendering component agar performa semakin optimal.",
-              skor_produktivitas_rata_rata: Number((collectedLogs.reduce((acc, l) => acc + (l.ai_feedback?.skor_produktivitas || 0), 0) / collectedLogs.length).toFixed(1))
-            }
-          }
+          weeklyResult = getDomainMockWeekly(magang?.nama || '', weekNumber, collectedLogs)
         }
 
         setResult(weeklyResult)

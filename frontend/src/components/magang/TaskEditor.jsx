@@ -5,6 +5,8 @@ import '@blocknote/core/fonts/inter.css'
 import '@blocknote/mantine/style.css'
 import { timelineService } from '../../services/timelineService'
 import { geminiService } from '../../services/geminiService'
+import { magangService } from '../../services/magangService'
+import { getDomainMockFeedback } from '../../services/domainHelper'
 
 /**
  * Sub-komponen untuk BlockNote Editor agar remount & re-initialization berjalan aman
@@ -165,29 +167,21 @@ export function TaskEditor({ magangId, day, startDate, onSaveSuccess }) {
             await new Promise((r) => setTimeout(r, 600))
           }
           
-          aiFeedback = {
-            tanggal_analisis: new Date().toISOString().split('T')[0],
-            kategori_aktivitas: blocksText.toLowerCase().includes('design') || blocksText.toLowerCase().includes('tampilan') ? 'Desain' : 'Teknis',
-            ringkasan_aktivitas: blocksText.trim()
-              ? `Berhasil merampungkan pekerjaan terkait: "${blocksText.slice(0, 80)}..."`
-              : "Melakukan pengerjaan tugas dan eksplorasi modul sistem harian.",
-            soft_skills: [
-              { nama_skill: "Kemandirian", bukti: "Menyelesaikan pengerjaan tugas harian secara mandiri." },
-              { nama_skill: "Ketelitian", bukti: "Memeriksa detail implementasi kode agar terhindar dari bug." }
-            ],
-            hard_skills: [
-              { nama_skill: "React.js", bukti: "Mengembangkan komponen antarmuka pengguna berbasis React." },
-              { nama_skill: "CSS Styling", bukti: "Menata estetika komponen agar selaras dengan desain sistem." }
-            ],
-            pembelajaran_utama: [
-              "Pemahaman alur integrasi manajemen state komponen.",
-              "Penerapan standar clean code dalam pengerjaan frontend."
-            ],
-            tantangan: blocksText.toLowerCase().includes('kendala') || blocksText.toLowerCase().includes('error')
-              ? "Menyelesaikan masalah teknis tak terduga yang muncul saat pengerjaan."
-              : "Tidak ada kendala berarti hari ini.",
-            skor_produktivitas: blocksText.trim() ? Math.min(5, Math.max(2, Math.ceil(blocksText.length / 80))) : 3
-          }
+          let magangName = ''
+          try {
+            if (isDemo) {
+              const stored = localStorage.getItem('mock_magang_items')
+              const items = stored ? JSON.parse(stored) : []
+              const currentMagang = items.find((i) => String(i.id) === String(magangId))
+              magangName = currentMagang?.nama || ''
+            } else {
+              const magData = await magangService.getById(magangId)
+              const currentMagang = magData?.data ?? magData
+              magangName = currentMagang?.nama || ''
+            }
+          } catch (_) {}
+
+          aiFeedback = getDomainMockFeedback(magangName, blocksText)
         }
 
         const updatedData = {

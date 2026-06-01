@@ -3,8 +3,9 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { timelineService } from '../services/timelineService'
 import { magangService } from '../services/magangService'
 import logoUrl from '../assets/images/logo.png'
-import { ArrowLeft, Award, Calendar, CheckCircle2, AlertOctagon, GraduationCap } from 'lucide-react'
+import { ArrowLeft, Award, Calendar, CheckCircle2, AlertOctagon, GraduationCap, MapPin, Globe, Building2, Lock } from 'lucide-react'
 import { geminiService } from '../services/geminiService'
+import { getDomainMockFinalReport } from '../services/domainHelper'
 
 export function FinalReportPage({ user, onLogout }) {
   const { id } = useParams()
@@ -14,6 +15,10 @@ export function FinalReportPage({ user, onLogout }) {
   const [result, setResult] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+
+  const [isLocked, setIsLocked] = useState(false)
+  const [lockProgress, setLockProgress] = useState({ actual: 0, total: 0, percentage: 0 })
+  const [bypassActive, setBypassActive] = useState(false)
 
   const isDemo = localStorage.getItem('demo_mode') === 'true'
 
@@ -88,6 +93,20 @@ export function FinalReportPage({ user, onLogout }) {
             }
           }
 
+          // Periksa progress pengerjaan log untuk Laporan Akhir
+          const totalTimelineDays = currentMagang?.timeline || 90
+          const actualLogsCount = collectedLogs.length
+          const pct = Math.min(100, Math.round((actualLogsCount / totalTimelineDays) * 100))
+
+          if (actualLogsCount < totalTimelineDays && !bypassActive) {
+            setIsLocked(true)
+            setLockProgress({ actual: actualLogsCount, total: totalTimelineDays, percentage: pct })
+            setLoading(false)
+            return
+          } else {
+            setIsLocked(false)
+          }
+
           // Jika di demo mode kita sengaja mensimulasikan error via feature flag
           if (localStorage.getItem('simulate_final_error') === 'true') {
             throw {
@@ -102,12 +121,15 @@ export function FinalReportPage({ user, onLogout }) {
 
           await new Promise((r) => setTimeout(r, 1800))
 
-          const hasGemini = geminiService.isConfigured()
+          const locationParts = currentMagang?.tempat_magang ? currentMagang.tempat_magang.split(', ') : []
+          const city = locationParts[0] || 'Jakarta'
+
           let finalReportResult = null
+          const hasGemini = geminiService.isConfigured()
 
           if (hasGemini) {
             try {
-              const geminiRaw = await geminiService.analyzeFinalReport(collectedLogs)
+              const geminiRaw = await geminiService.analyzeFinalReport(collectedLogs, currentMagang?.tempat_magang || 'Indonesia')
               
               const isSoftSkill = (name) => {
                 const softs = ['komunikasi', 'mandiri', 'kemandirian', 'kepemimpinan', 'pemecahan masalah', 'kolaborasi', 'adaptasi', 'ketelitian', 'kerja keras', 'disiplin', 'proaktif', 'manajemen waktu']
@@ -186,7 +208,15 @@ export function FinalReportPage({ user, onLogout }) {
                   pencapaian_terbaik: pencapaian,
                   tantangan_terbesar: tantangan,
                   refleksi_keseluruhan: "Pengalaman magang ini memberikan wawasan industri nyata yang sangat luar biasa, mematangkan pemahaman arsitektur rekayasa perangkat lunak, serta melatih kolaborasi kerja profesional.",
-                  rekomendasi_karir: `${geminiRaw.rekomendasi_karir?.karir_cocok || 'Frontend Developer'}. ${geminiRaw.rekomendasi_karir?.alasan || ''} Saran pengembangan: ${geminiRaw.rekomendasi_karir?.saran_pengembangan || ''}`
+                  rekomendasi_karir: `${geminiRaw.rekomendasi_karir?.karir_cocok || 'Frontend Developer'}. ${geminiRaw.rekomendasi_karir?.alasan || ''} Saran pengembangan: ${geminiRaw.rekomendasi_karir?.saran_pengembangan || ''}`,
+                  rekomendasi_perusahaan: geminiRaw.rekomendasi_karir?.rekomendasi_perusahaan || [
+                    {
+                      nama_perusahaan: `DOT Indonesia (${city})`,
+                      alamat: `Area Teknologi Informasi, ${city}`,
+                      kontak: `careers.dot.co.id`,
+                      alasan_kecocokan: `Sangat cocok untuk memperdalam pengerjaan sistem React modular yang Anda kuasai.`
+                    }
+                  ]
                 }
               }
             } catch (geminiErr) {
@@ -194,71 +224,21 @@ export function FinalReportPage({ user, onLogout }) {
             }
           }
 
-          // Fallback mock data jika tidak pakai Gemini / Gemini error
           if (!finalReportResult) {
-            finalReportResult = {
-              magang_id: Number(id),
-              magang_info: {
-                nama: user?.name || "Budi Santoso",
+            finalReportResult = getDomainMockFinalReport(
+              currentMagang?.nama || '',
+              {
+                id: id,
+                nama: currentMagang?.nama || '',
+                user_name: user?.name || "Budi Santoso",
                 tempat_magang: currentMagang?.tempat_magang || "PT. Teknologi Bangsa",
                 tanggal_mulai: currentMagang?.tanggal_mulai || "2026-03-01",
                 tanggal_selesai: currentMagang?.tanggal_selesai || "2026-05-31",
-                total_hari: currentMagang?.timeline || 60
+                timeline: currentMagang?.timeline || 60
               },
-              total_analyzed_days: collectedLogs.length,
-              report: {
-                judul_laporan: `Laporan Akhir Magang ${user?.name || "Budi Santoso"} di ${currentMagang?.tempat_magang || "PT. Teknologi Bangsa"}`,
-                ringkasan_eksekutif: `${user?.name || "Budi Santoso"} menunjukkan dedikasi yang tinggi selama masa magang di ${currentMagang?.tempat_magang || "PT. Teknologi Bangsa"}. Yang bersangkutan berkontribusi aktif dalam merancang komponen antarmuka yang efisien, terstruktur, dan responsif.`,
-                perjalanan_magang: [
-                  {
-                    periode: "Bulan ke-1",
-                    narasi: "Fokus pada pengenalan codebase sistem, setup local development environment, serta pengerjaan slicing UI dasar menggunakan React.js dan Vanilla CSS."
-                  },
-                  {
-                    periode: "Bulan ke-2",
-                    narasi: "Mulai masuk ke integrasi sistem RESTful API, implementasi modul grafik interaktif, dan optimasi performa render komponen utama."
-                  },
-                  {
-                    periode: "Bulan ke-3",
-                    narasi: "Pengerjaan modul Timeline & AI, implementasi BlockNote editor WYSIWYG, dan pemolesan kualitas antarmuka visual (premium micro-animations)."
-                  }
-                ],
-                total_soft_skills: [
-                  {
-                    nama_skill: "Komunikasi",
-                    level_akhir: "Kompeten",
-                    deskripsi_perkembangan: "Sangat aktif mengoordinasikan integrasi API serta menyelaraskan schema data dengan tim backend."
-                  },
-                  {
-                    nama_skill: "Kemandirian",
-                    level_akhir: "Mahir",
-                    deskripsi_perkembangan: "Mampu melakukan setup arsitektur editor BlockNote serta error handling asinkron secara mandiri tanpa supervisi ketat."
-                  }
-                ],
-                total_hard_skills: [
-                  {
-                    nama_skill: "React.js",
-                    level_akhir: "Mahir",
-                    deskripsi_perkembangan: "Membangun lebih dari 15 komponen fungsional modular yang reusable dan berkinerja tinggi."
-                  },
-                  {
-                    nama_skill: "Vanilla CSS",
-                    level_akhir: "Kompeten",
-                    deskripsi_perkembangan: "Menerapkan standard utility classes dan struktur layout responsif dengan detail visual yang memukau."
-                  }
-                ],
-                pencapaian_terbaik: [
-                  "Merancang modul grafik analitik visual yang mempercepat monitoring progress internal tim hingga 40%",
-                  "Mengurangi redundansi render UI sebesar 25% melalui optimalisasi memoization React"
-                ],
-                tantangan_terbesar: [
-                  "Menyeimbangkan kecepatan slicing UI dengan kaidah penulisan clean code di minggu kedua",
-                  "Mempelajari spesifikasi internal pustaka BlockNote dalam waktu singkat"
-                ],
-                refleksi_keseluruhan: "Masa magang ini memberikan perspektif industri nyata yang sangat berharga, mengasah keterampilan teknis coding, serta meningkatkan kesiapan karir sebagai pengembang perangkat lunak profesional.",
-                rekomendasi_karir: "Sangat direkomendasikan untuk langsung diproyeksikan sebagai Junior Frontend Developer."
-              }
-            }
+              collectedLogs,
+              city
+            )
           }
 
           setResult(finalReportResult)
@@ -278,7 +258,7 @@ export function FinalReportPage({ user, onLogout }) {
       }
     }
     fetchAndGenerate()
-  }, [id, isDemo, user])
+  }, [id, isDemo, user, bypassActive])
 
   // Helper warna badge level kompetensi
   const getLevelBadgeColor = (level) => {
@@ -414,8 +394,75 @@ export function FinalReportPage({ user, onLogout }) {
             </div>
           )}
 
+          {/* Lock Screen UI (Jika Magang Belum Selesai) */}
+          {isLocked && !loading && !error && (
+            <div className="bg-white border border-slate-200/80 rounded-3xl p-8 shadow-xl max-w-2xl mx-auto relative overflow-hidden animate-fade-in">
+              <div className="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-amber-500 via-indigo-500 to-indigo-600" />
+              
+              <div className="flex flex-col items-center text-center py-6">
+                {/* Glowing Lock Icon */}
+                <div className="relative mb-6">
+                  <div className="absolute inset-0 bg-amber-500/10 rounded-full blur-xl scale-125 animate-pulse" />
+                  <div className="relative flex h-16 w-16 items-center justify-center rounded-2xl bg-amber-50 border border-amber-200/50 shadow-inner text-amber-600">
+                    <Lock className="h-7 w-7" />
+                  </div>
+                </div>
+
+                <h3 className="text-xl font-bold text-slate-800 tracking-tight mb-2">
+                  Laporan Akhir Belum Dapat Dibuat
+                </h3>
+                
+                <p className="text-sm text-slate-500 max-w-md mb-8 leading-relaxed">
+                  Evaluasi kompetensi akhir dihitung secara kumulatif setelah masa magang berakhir. Hal ini dilakukan guna menjaga presisi analisis kecerdasan buatan terhadap seluruh riwayat aktivitas Anda.
+                </p>
+
+                {/* Progress Box */}
+                <div className="w-full max-w-md bg-slate-50 border border-slate-100 rounded-2xl p-5 mb-8">
+                  <div className="flex justify-between items-center text-xs font-bold uppercase tracking-wider text-slate-400 mb-2.5">
+                    <span>Progress Magang</span>
+                    <span className="text-slate-700">{lockProgress.actual} dari {lockProgress.total} Hari Tercatat</span>
+                  </div>
+                  
+                  {/* Progress Bar */}
+                  <div className="w-full h-3 bg-slate-200 rounded-full overflow-hidden mb-2 shadow-inner">
+                    <div 
+                      className="h-full bg-gradient-to-r from-amber-500 to-indigo-500 transition-all duration-500 ease-out rounded-full"
+                      style={{ width: `${lockProgress.percentage}%` }}
+                    />
+                  </div>
+                  
+                  <div className="flex justify-between items-center text-xs text-slate-500">
+                    <span>Kemajuan: {lockProgress.percentage}%</span>
+                    <span>Tersisa {lockProgress.total - lockProgress.actual} hari lagi</span>
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="flex flex-col sm:flex-row items-center gap-3.5 w-full max-w-md">
+                  <button
+                    onClick={() => navigate(`/magang/${id}`)}
+                    className="w-full sm:flex-1 py-3 px-5 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 rounded-xl shadow-lg shadow-indigo-600/10 hover:shadow-indigo-600/20 hover:-translate-y-0.5 transition duration-300 cursor-pointer text-center"
+                  >
+                    Kembali Mencatat Log Harian
+                  </button>
+                  
+                  <button
+                    onClick={() => setBypassActive(true)}
+                    className="w-full sm:flex-1 py-3 px-5 text-sm font-semibold text-slate-600 hover:text-indigo-600 bg-slate-100 hover:bg-indigo-50 border border-slate-200/50 rounded-xl transition cursor-pointer text-center"
+                  >
+                    Bypass & Lihat Preview
+                  </button>
+                </div>
+                
+                <span className="text-[10px] text-slate-400 mt-4 italic block">
+                  *Gunakan tombol Bypass di atas khusus untuk kebutuhan demonstrasi/pengujian.
+                </span>
+              </div>
+            </div>
+          )}
+
           {/* Report Results */}
-          {result && !loading && (
+          {result && !loading && !isLocked && (
             <div className="weekly-results animate-fade-in">
 
               {/* Title & Exec Summary Card */}
@@ -564,6 +611,78 @@ export function FinalReportPage({ user, onLogout }) {
                   </div>
                 </div>
               </div>
+
+              {/* Peluang Karir & Industri Lokal (Google Maps & Website) */}
+              {result.report.rekomendasi_perusahaan?.length > 0 && (
+                <div className="weekly-highlights-card" style={{ marginTop: 24, padding: 24 }}>
+                  <h4 className="section-card-title flex items-center gap-2 text-indigo-950 font-extrabold">
+                    <Building2 className="h-5 w-5 text-indigo-600 animate-pulse" />
+                    Peluang Karir Lokal ({result.magang_info?.tempat_magang?.split(', ')?.[0] || 'Wilayah Anda'})
+                  </h4>
+                  <p className="text-xs text-gray-500 mb-4">
+                    Kecerdasan Buatan merekomendasikan beberapa nama perusahaan teknologi nyata di wilayah terdekat Anda yang sangat relevan untuk Anda melamar pekerjaan:
+                  </p>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {result.report.rekomendasi_perusahaan.map((comp, idx) => {
+                      const mapsSearchUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(comp.nama_perusahaan + ' ' + comp.alamat)}`;
+                      
+                      return (
+                        <div key={idx} className="border border-slate-100 rounded-2xl p-4 bg-slate-50/45 hover:border-indigo-100 hover:bg-indigo-50/10 transition-all duration-300 shadow-sm relative overflow-hidden flex flex-col justify-between">
+                          <div className="absolute right-0 top-0 h-16 w-16 bg-gradient-to-bl from-indigo-500/5 to-transparent rounded-bl-full pointer-events-none" />
+                          
+                          <div>
+                            <div className="flex items-start justify-between gap-2 mb-2">
+                              <h5 className="font-bold text-sm text-slate-800 leading-tight">{comp.nama_perusahaan}</h5>
+                              <span className="text-[9px] font-bold text-indigo-600 bg-indigo-50 border border-indigo-100/60 rounded-full px-2 py-0.5 whitespace-nowrap">Relevan AI</span>
+                            </div>
+                            
+                            <p className="text-xs text-gray-600 mb-3 leading-relaxed">
+                              {comp.alasan_kecocokan}
+                            </p>
+                            
+                            {/* Alamat */}
+                            <div className="flex items-start gap-1.5 text-xs text-gray-500 mb-2">
+                              <MapPin className="h-3.5 w-3.5 text-slate-400 shrink-0 mt-0.5" />
+                              <span className="line-clamp-2">{comp.alamat}</span>
+                            </div>
+                            
+                            {/* Kontak */}
+                            <div className="flex items-center gap-1.5 text-xs text-indigo-600 font-semibold mb-4">
+                              <Globe className="h-3.5 w-3.5 text-indigo-400 shrink-0" />
+                              <a href={`https://${comp.kontak}`} target="_blank" rel="noopener noreferrer" className="hover:underline">
+                                {comp.kontak}
+                              </a>
+                            </div>
+                          </div>
+
+                          {/* Tombol Aksi */}
+                          <div className="border-t border-slate-100/60 pt-3 flex items-center gap-2 mt-auto">
+                            <a
+                              href={mapsSearchUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center gap-1 px-3 py-1.5 text-[11px] font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-100 rounded-lg transition cursor-pointer"
+                            >
+                              <MapPin className="h-3 w-3" />
+                              Buka Peta Lokasi
+                            </a>
+                            <a
+                              href={`https://${comp.kontak}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center gap-1 px-3 py-1.5 text-[11px] font-bold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-100 rounded-lg transition ml-auto cursor-pointer"
+                            >
+                              <Globe className="h-3 w-3" />
+                              Kunjungi Web
+                            </a>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
 
             </div>
           )}

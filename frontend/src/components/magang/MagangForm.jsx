@@ -1,5 +1,25 @@
 import { useState, useEffect } from 'react'
 
+const DATA_WILAYAH = {
+  Indonesia: {
+    "DKI Jakarta": ["Jakarta Pusat", "Jakarta Selatan", "Jakarta Barat", "Jakarta Timur", "Jakarta Utara"],
+    "Jawa Timur": ["Surabaya", "Malang", "Sidoarjo", "Gresik", "Kediri", "Madiun", "Banyuwangi"],
+    "Jawa Tengah": ["Semarang", "Surakarta (Solo)", "Yogyakarta", "Magelang", "Tegal"],
+    "Jawa Barat": ["Bandung", "Bogor", "Depok", "Bekasi", "Tangerang"],
+    "Sumatera Utara": ["Medan", "Binjai", "Pematangsiantar", "Deli Serdang"],
+    "Sulawesi Selatan": ["Makassar", "Gowa", "Maros", "Parepare"]
+  },
+  Singapura: {
+    "Central Region": ["Downtown Core", "Bukit Merah", "Queenstown"],
+    "East Region": ["Tampines", "Bedok", "Changi"]
+  },
+  Malaysia: {
+    "Kuala Lumpur": ["Wilayah Persekutuan"],
+    "Selangor": ["Shah Alam", "Petaling Jaya", "Subang Jaya", "Klang"],
+    "Johor": ["Johor Bahru", "Batu Pahat", "Muar"]
+  }
+}
+
 const EMPTY_FORM = {
   nama: '',
   timeline: '',
@@ -38,6 +58,11 @@ export function MagangForm({ isOpen, onClose, onSubmit, initialData, loading }) 
   const [visible, setVisible] = useState(false)
   const isEdit = Boolean(initialData)
 
+  // Dropdown States
+  const [negara, setNegara] = useState('')
+  const [provinsi, setProvinsi] = useState('')
+  const [kota, setKota] = useState('')
+
   useEffect(() => {
     if (isOpen) {
       setForm(
@@ -52,6 +77,26 @@ export function MagangForm({ isOpen, onClose, onSubmit, initialData, loading }) 
           : EMPTY_FORM,
       )
       setErrors({})
+
+      // Parse tempat_magang to location dropdowns if it has "Kota, Provinsi, Negara" format
+      if (initialData && initialData.tempat_magang) {
+        const parts = initialData.tempat_magang.split(', ')
+        if (parts.length === 3) {
+          setKota(parts[0])
+          setProvinsi(parts[1])
+          setNegara(parts[2])
+        } else {
+          // Fallback if it is regular custom string
+          setNegara('Indonesia')
+          setProvinsi('')
+          setKota('')
+        }
+      } else {
+        setNegara('')
+        setProvinsi('')
+        setKota('')
+      }
+
       const t = setTimeout(() => setVisible(true), 10)
       return () => clearTimeout(t)
     } else {
@@ -61,13 +106,41 @@ export function MagangForm({ isOpen, onClose, onSubmit, initialData, loading }) 
 
   const handleChange = (e) => {
     const { name, value } = e.target
-    setForm((prev) => ({ ...prev, [name]: value }))
+    setForm((prev) => {
+      const updated = { ...prev, [name]: value }
+
+      // Auto-calculate Tanggal Selesai based on Timeline & Tanggal Mulai
+      if (name === 'timeline' || name === 'tanggal_mulai') {
+        const timelineVal = name === 'timeline' ? value : prev.timeline
+        const startDateVal = name === 'tanggal_mulai' ? value : prev.tanggal_mulai
+
+        if (timelineVal && startDateVal) {
+          const daysNum = Number(timelineVal)
+          if (!isNaN(daysNum) && daysNum > 0) {
+            const d = new Date(startDateVal)
+            // Tambahkan (hari - 1) agar Tanggal Mulai terhitung sebagai Hari ke-1
+            d.setDate(d.getDate() + (daysNum - 1))
+            updated.tanggal_selesai = d.toISOString().split('T')[0]
+          }
+        }
+      }
+
+      return updated
+    })
+
     if (errors[name]) setErrors((prev) => ({ ...prev, [name]: null }))
+    if (name === 'timeline' || name === 'tanggal_mulai') {
+      if (errors.tanggal_selesai) setErrors((prev) => ({ ...prev, tanggal_selesai: null }))
+    }
   }
 
   const validate = () => {
     const newErrors = {}
     if (!form.nama.trim()) newErrors.nama = 'Nama wajib diisi'
+    if (!negara) newErrors.tempat_magang = 'Negara wajib terpilih'
+    if (negara && !provinsi) newErrors.tempat_magang = 'Provinsi wajib terpilih'
+    if (provinsi && !kota) newErrors.tempat_magang = 'Kota wajib terpilih'
+
     if (form.timeline !== '' && (isNaN(Number(form.timeline)) || Number(form.timeline) < 0))
       newErrors.timeline = 'Timeline harus berupa angka positif'
     if (form.tanggal_mulai && form.tanggal_selesai && form.tanggal_selesai < form.tanggal_mulai)
@@ -79,10 +152,15 @@ export function MagangForm({ isOpen, onClose, onSubmit, initialData, loading }) 
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (!validate()) return
+
+    const locationStr = (kota && provinsi && negara)
+      ? `${kota}, ${provinsi}, ${negara}`
+      : form.tempat_magang.trim() || 'Indonesia'
+
     const payload = {
       nama: form.nama.trim(),
       timeline: form.timeline !== '' ? Number(form.timeline) : 0,
-      tempat_magang: form.tempat_magang.trim(),
+      tempat_magang: locationStr,
       tanggal_mulai: form.tanggal_mulai,
       tanggal_selesai: form.tanggal_selesai,
     }
@@ -153,17 +231,66 @@ export function MagangForm({ isOpen, onClose, onSubmit, initialData, loading }) 
             />
           </InputField>
 
-          <InputField label="Tempat Magang" id="tempat_magang" error={errors.tempat_magang}>
-            <input
-              id="tempat_magang"
-              name="tempat_magang"
-              type="text"
-              placeholder="Contoh: Jakarta Selatan"
-              value={form.tempat_magang}
-              onChange={handleChange}
-              className={inputClass(false)}
-            />
-          </InputField>
+          {/* Cascading Location Selector */}
+          <div className="flex flex-col gap-3.5 border border-slate-100 rounded-2xl p-4 bg-slate-50/30">
+            <p className="text-xs font-bold uppercase tracking-widest text-slate-400">Tempat & Lokasi Magang</p>
+            
+            {/* 1. Negara */}
+            <InputField label="Negara" id="negara" required error={errors.tempat_magang}>
+              <select
+                id="negara"
+                value={negara}
+                onChange={(e) => {
+                  setNegara(e.target.value)
+                  setProvinsi('')
+                  setKota('')
+                  if (errors.tempat_magang) setErrors((prev) => ({ ...prev, tempat_magang: null }))
+                }}
+                className={inputClass(errors.tempat_magang)}
+              >
+                <option value="">-- Pilih Negara --</option>
+                {Object.keys(DATA_WILAYAH).map((n) => (
+                  <option key={n} value={n}>{n}</option>
+                ))}
+              </select>
+            </InputField>
+
+            {/* 2. Provinsi & Kota (Grid 2-Kolom) */}
+            <div className="grid grid-cols-2 gap-3">
+              <InputField label="Provinsi" id="provinsi" required>
+                <select
+                  id="provinsi"
+                  value={provinsi}
+                  disabled={!negara}
+                  onChange={(e) => {
+                    setProvinsi(e.target.value)
+                    setKota('')
+                  }}
+                  className={inputClass(false) + ' disabled:opacity-50'}
+                >
+                  <option value="">-- Pilih Provinsi --</option>
+                  {negara && Object.keys(DATA_WILAYAH[negara] || {}).map((p) => (
+                    <option key={p} value={p}>{p}</option>
+                  ))}
+                </select>
+              </InputField>
+
+              <InputField label="Kota / Kabupaten" id="kota" required>
+                <select
+                  id="kota"
+                  value={kota}
+                  disabled={!provinsi}
+                  onChange={(e) => setKota(e.target.value)}
+                  className={inputClass(false) + ' disabled:opacity-50'}
+                >
+                  <option value="">-- Pilih Kota --</option>
+                  {negara && provinsi && (DATA_WILAYAH[negara][provinsi] || []).map((k) => (
+                    <option key={k} value={k}>{k}</option>
+                  ))}
+                </select>
+              </InputField>
+            </div>
+          </div>
 
           <InputField label="Timeline (hari)" id="timeline" error={errors.timeline}>
             <input
