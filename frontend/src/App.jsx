@@ -1,13 +1,49 @@
 import { useState, useEffect } from 'react'
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+  useNavigate,
+} from 'react-router-dom'
 import { LoginPage } from './pages/LoginPage'
+import { MagangPage } from './pages/MagangPage'
+import { MagangDetailPage } from './pages/MagangDetailPage'
+import { WeeklySummaryPage } from './pages/WeeklySummaryPage'
+import { FinalReportPage } from './pages/FinalReportPage'
 import { authService } from './services/authService'
 
-function App() {
+// ─── Loading screen ────────────────────────────────────────────────────────
+
+function LoadingScreen() {
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-[#080c18]">
+      <div className="flex flex-col items-center gap-4">
+        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-[#0c326b] to-[#082550] shadow-lg shadow-blue-900/50">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={2.5} className="h-6 w-6">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+          </svg>
+        </div>
+        <div className="flex items-center gap-2">
+          <svg className="h-4 w-4 animate-spin text-blue-500" viewBox="0 0 24 24" fill="none">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+          </svg>
+          <span className="text-sm font-medium text-slate-400">Memuat InternLog...</span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ─── Auth guard wrapper ────────────────────────────────────────────────────
+
+function AuthApp() {
   const [user, setUser] = useState(() => authService.getUser())
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  const [sessionRestored, setSessionRestored] = useState(false)
   const isAuthenticated = Boolean(user) || authService.isLoggedIn()
+  const navigate = useNavigate()
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -15,22 +51,18 @@ function App() {
         setLoading(false)
         return
       }
-
       try {
         const profile = await authService.fetchMe()
         setUser(profile)
         setError(null)
-        setSessionRestored(true)
       } catch (err) {
         authService.logout()
         setUser(null)
         setError('Sesi login berakhir, silakan login ulang')
-        setSessionRestored(false)
       } finally {
         setLoading(false)
       }
     }
-
     fetchUser()
   }, [])
 
@@ -39,7 +71,7 @@ function App() {
       const profile = await authService.fetchMe()
       setUser(profile)
       setError(null)
-      setSessionRestored(false)
+      navigate('/magang')
     } catch (err) {
       setError(err.message || 'Gagal mengambil data user')
     }
@@ -53,73 +85,75 @@ function App() {
     authService.logout()
     setUser(null)
     setError(null)
-    setSessionRestored(false)
+    navigate('/login')
   }
 
-  if (loading) {
-    return (
-      <div className="grid min-h-screen place-items-center bg-violet-300 text-slate-800">
-        Loading...
-      </div>
-    )
-  }
+  if (loading) return <LoadingScreen />
 
   return (
-    <div className="min-h-screen bg-violet-300 px-4 py-5 md:px-6">
-      <header className="mx-auto mb-3 w-full max-w-5xl">
-        <h1 className="m-0 text-sm font-semibold uppercase tracking-[0.08em] text-violet-50">
-          InternLog - Google OAuth Demo
-        </h1>
-      </header>
-
-      <main className="mx-auto w-full max-w-5xl">
-        {error && (
-          <div className="mb-4 rounded-xl border border-red-200 bg-red-100 px-4 py-3 text-center text-sm text-red-700">
-            {error}
-          </div>
-        )}
-
-        {!isAuthenticated ? (
-          <LoginPage
-            onLoginSuccess={handleLoginSuccess}
-            onLoginError={handleLoginError}
-          />
-        ) : (
-          <div className="rounded-2xl border border-slate-200 bg-white p-7 shadow-xl shadow-slate-900/10">
-            <h2 className="mb-3 text-2xl font-semibold text-slate-800">
-              Login Successful!
-            </h2>
-            {sessionRestored && (
-              <p className="mb-4 text-sm font-medium text-emerald-700">
-                Session restored
-              </p>
-            )}
-            <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-              <p className="m-0">
-                <strong>Name:</strong> {user?.name || 'N/A'}
-              </p>
-              <p className="mt-2">
-                <strong>Email:</strong> {user?.email || 'N/A'}
-              </p>
-              {user?.profile_picture && (
-                <img
-                  src={user.profile_picture}
-                  alt="Profile"
-                  className="mx-auto mt-4 block h-24 w-24 rounded-full object-cover"
+    <Routes>
+      {/* Login */}
+      <Route
+        path="/login"
+        element={
+          isAuthenticated ? (
+            <Navigate to="/magang" replace />
+          ) : (
+            <div className="flex min-h-screen items-center justify-center bg-white p-4 md:p-8">
+              <main className="w-full max-w-[1000px]">
+                {error && (
+                  <div className="mb-4 rounded-xl border border-red-200 bg-red-100 px-4 py-3 text-center text-sm text-red-700">
+                    {error}
+                  </div>
+                )}
+                <LoginPage
+                  onLoginSuccess={handleLoginSuccess}
+                  onLoginError={handleLoginError}
                 />
-              )}
+              </main>
             </div>
-            <button
-              className="mt-4 rounded-xl bg-red-600 px-4 py-2 text-white transition hover:-translate-y-0.5 hover:bg-red-700"
-              onClick={handleLogout}
-            >
-              Logout
-            </button>
-          </div>
-        )}
-      </main>
-    </div>
+          )
+        }
+      />
+
+      {/* Protected routes */}
+      {isAuthenticated ? (
+        <>
+          <Route path="/" element={<Navigate to="/magang" replace />} />
+          <Route
+            path="/magang"
+            element={<MagangPage user={user} onLogout={handleLogout} />}
+          />
+          <Route
+            path="/magang/:id"
+            element={<MagangDetailPage user={user} onLogout={handleLogout} />}
+          />
+          <Route
+            path="/magang/:id/weekly-summary"
+            element={<WeeklySummaryPage user={user} />}
+          />
+          <Route
+            path="/magang/:id/final-report"
+            element={<FinalReportPage user={user} />}
+          />
+          <Route path="*" element={<Navigate to="/magang" replace />} />
+        </>
+      ) : (
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      )}
+    </Routes>
+  )
+}
+
+// ─── Root App ──────────────────────────────────────────────────────────────
+
+function App() {
+  return (
+    <BrowserRouter>
+      <AuthApp />
+    </BrowserRouter>
   )
 }
 
 export default App
+

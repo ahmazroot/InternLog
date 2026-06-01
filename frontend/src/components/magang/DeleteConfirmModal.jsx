@@ -23,7 +23,7 @@ export function DeleteConfirmModal({ isOpen, onClose, onConfirm, item, loading }
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
       style={{
-        backgroundColor: visible ? 'rgba(2,6,23,0.8)' : 'rgba(2,6,23,0)',
+        backgroundColor: visible ? 'rgba(15,23,42,0.45)' : 'rgba(15,23,42,0)',
         backdropFilter: visible ? 'blur(8px)' : 'blur(0px)',
         transition: 'background-color 300ms ease, backdrop-filter 300ms ease',
       }}
@@ -35,18 +35,18 @@ export function DeleteConfirmModal({ isOpen, onClose, onConfirm, item, loading }
           opacity: visible ? 1 : 0,
           transition: 'all 300ms cubic-bezier(0.22,1,0.36,1)',
         }}
-        className="relative w-full max-w-sm overflow-hidden rounded-3xl border border-slate-700/60 bg-slate-900 shadow-2xl shadow-black/70 text-center"
+        className="relative w-full max-w-sm overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl text-center modal-pop"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Top danger accent */}
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-red-500 to-transparent" />
+        <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-red-500 to-transparent" />
 
         {/* Icon area */}
         <div className="flex flex-col items-center px-6 pt-8 pb-5">
           <div className="relative mb-5">
-            <div className="absolute inset-0 animate-ping rounded-full bg-red-500/20" />
-            <div className="relative flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-red-500/20 to-rose-600/20 ring-1 ring-red-500/30">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="h-8 w-8 text-red-400">
+            <div className="absolute inset-0 animate-ping rounded-full bg-red-100" />
+            <div className="relative flex h-16 w-16 items-center justify-center rounded-2xl bg-red-50 ring-1 ring-red-100">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="h-8 w-8 text-red-500">
                 <polyline points="3 6 5 6 21 6" />
                 <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
                 <path d="M10 11v6M14 11v6" />
@@ -55,25 +55,25 @@ export function DeleteConfirmModal({ isOpen, onClose, onConfirm, item, loading }
             </div>
           </div>
 
-          <h2 className="text-lg font-semibold text-slate-100">Hapus Data Magang?</h2>
-          <p className="mt-2 text-sm text-slate-400 leading-relaxed">
+          <h2 className="text-lg font-bold text-slate-800 tracking-tight">Hapus Data Magang?</h2>
+          <p className="mt-2 text-sm text-slate-500 leading-relaxed">
             Anda akan menghapus{' '}
-            <span className="font-semibold text-slate-200">"{item?.nama}"</span>
+            <span className="font-bold text-slate-800">"{item?.nama}"</span>
             {item?.tempat_magang ? (
-              <> di <span className="font-semibold text-slate-200">{item.tempat_magang}</span></>
+              <> di <span className="font-bold text-slate-800">{item.tempat_magang}</span></>
             ) : null}
             . Tindakan ini tidak dapat dibatalkan.
           </p>
         </div>
 
         {/* Actions */}
-        <div className="flex gap-2 border-t border-slate-800 px-6 py-4">
+        <div className="flex gap-3 border-t border-slate-100 px-6 py-5 bg-slate-50/50">
           <button
             id="delete-cancel-btn"
             type="button"
             onClick={handleClose}
             disabled={loading}
-            className="flex-1 rounded-xl border border-slate-700 py-2.5 text-sm font-medium text-slate-400 transition hover:border-slate-600 hover:text-slate-200 disabled:opacity-50"
+            className="flex-1 rounded-xl border border-slate-200 bg-white py-2.5 text-sm font-semibold text-slate-600 shadow-sm transition hover:bg-slate-50 hover:text-slate-800 disabled:opacity-50 cursor-pointer"
           >
             Batalkan
           </button>
@@ -82,7 +82,7 @@ export function DeleteConfirmModal({ isOpen, onClose, onConfirm, item, loading }
             type="button"
             onClick={onConfirm}
             disabled={loading}
-            className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 py-2.5 text-sm font-semibold text-white shadow-lg shadow-red-900/40 transition duration-200 hover:-translate-y-0.5 hover:shadow-red-900/60 disabled:cursor-not-allowed disabled:opacity-70"
+            className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-red-600 py-2.5 text-sm font-semibold text-white shadow-lg shadow-red-600/20 transition duration-200 hover:-translate-y-0.5 hover:shadow-red-600/30 hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-70 cursor-pointer"
           >
             {loading ? (
               <>
