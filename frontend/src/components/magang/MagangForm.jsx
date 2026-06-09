@@ -1,5 +1,25 @@
 import { useState, useEffect } from 'react'
 
+const DATA_WILAYAH = {
+  Indonesia: {
+    "DKI Jakarta": ["Jakarta Pusat", "Jakarta Selatan", "Jakarta Barat", "Jakarta Timur", "Jakarta Utara"],
+    "Jawa Timur": ["Surabaya", "Malang", "Sidoarjo", "Gresik", "Kediri", "Madiun", "Banyuwangi"],
+    "Jawa Tengah": ["Semarang", "Surakarta (Solo)", "Yogyakarta", "Magelang", "Tegal"],
+    "Jawa Barat": ["Bandung", "Bogor", "Depok", "Bekasi", "Tangerang"],
+    "Sumatera Utara": ["Medan", "Binjai", "Pematangsiantar", "Deli Serdang"],
+    "Sulawesi Selatan": ["Makassar", "Gowa", "Maros", "Parepare"]
+  },
+  Singapura: {
+    "Central Region": ["Downtown Core", "Bukit Merah", "Queenstown"],
+    "East Region": ["Tampines", "Bedok", "Changi"]
+  },
+  Malaysia: {
+    "Kuala Lumpur": ["Wilayah Persekutuan"],
+    "Selangor": ["Shah Alam", "Petaling Jaya", "Subang Jaya", "Klang"],
+    "Johor": ["Johor Bahru", "Batu Pahat", "Muar"]
+  }
+}
+
 const EMPTY_FORM = {
   nama: '',
   timeline: '',
@@ -11,12 +31,12 @@ const EMPTY_FORM = {
 function InputField({ label, id, required, error, children }) {
   return (
     <div className="flex flex-col gap-1.5">
-      <label htmlFor={id} className="text-xs font-semibold uppercase tracking-widest text-slate-400">
-        {label} {required && <span className="text-violet-400">*</span>}
+      <label htmlFor={id} className="text-xs font-bold uppercase tracking-widest text-slate-500">
+        {label} {required && <span className="text-red-500">*</span>}
       </label>
       {children}
       {error && (
-        <p className="flex items-center gap-1 text-xs text-red-400">
+        <p className="flex items-center gap-1 text-xs text-red-500 font-medium">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} className="h-3 w-3">
             <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
           </svg>
@@ -28,15 +48,20 @@ function InputField({ label, id, required, error, children }) {
 }
 
 const inputClass = (hasError) =>
-  `w-full rounded-xl border px-4 py-2.5 text-sm text-slate-100 bg-slate-800/80 outline-none placeholder-slate-600 transition duration-150
-   focus:ring-2 focus:ring-violet-500/60 focus:border-violet-500/60
-   ${hasError ? 'border-red-500/60 bg-red-900/10' : 'border-slate-700/80 hover:border-slate-600'}`
+  `w-full rounded-xl border px-4 py-2.5 text-sm text-slate-800 bg-white outline-none placeholder-slate-400 transition duration-200 shadow-sm
+   focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500
+   ${hasError ? 'border-red-400 bg-red-50/50' : 'border-slate-200 hover:border-slate-300'}`
 
 export function MagangForm({ isOpen, onClose, onSubmit, initialData, loading }) {
   const [form, setForm] = useState(EMPTY_FORM)
   const [errors, setErrors] = useState({})
   const [visible, setVisible] = useState(false)
   const isEdit = Boolean(initialData)
+
+  // Dropdown States
+  const [negara, setNegara] = useState('')
+  const [provinsi, setProvinsi] = useState('')
+  const [kota, setKota] = useState('')
 
   useEffect(() => {
     if (isOpen) {
@@ -52,6 +77,26 @@ export function MagangForm({ isOpen, onClose, onSubmit, initialData, loading }) 
           : EMPTY_FORM,
       )
       setErrors({})
+
+      // Parse tempat_magang to location dropdowns if it has "Kota, Provinsi, Negara" format
+      if (initialData && initialData.tempat_magang) {
+        const parts = initialData.tempat_magang.split(', ')
+        if (parts.length === 3) {
+          setKota(parts[0])
+          setProvinsi(parts[1])
+          setNegara(parts[2])
+        } else {
+          // Fallback if it is regular custom string
+          setNegara('Indonesia')
+          setProvinsi('')
+          setKota('')
+        }
+      } else {
+        setNegara('')
+        setProvinsi('')
+        setKota('')
+      }
+
       const t = setTimeout(() => setVisible(true), 10)
       return () => clearTimeout(t)
     } else {
@@ -61,13 +106,41 @@ export function MagangForm({ isOpen, onClose, onSubmit, initialData, loading }) 
 
   const handleChange = (e) => {
     const { name, value } = e.target
-    setForm((prev) => ({ ...prev, [name]: value }))
+    setForm((prev) => {
+      const updated = { ...prev, [name]: value }
+
+      // Auto-calculate Tanggal Selesai based on Timeline & Tanggal Mulai
+      if (name === 'timeline' || name === 'tanggal_mulai') {
+        const timelineVal = name === 'timeline' ? value : prev.timeline
+        const startDateVal = name === 'tanggal_mulai' ? value : prev.tanggal_mulai
+
+        if (timelineVal && startDateVal) {
+          const daysNum = Number(timelineVal)
+          if (!isNaN(daysNum) && daysNum > 0) {
+            const d = new Date(startDateVal)
+            // Tambahkan (hari - 1) agar Tanggal Mulai terhitung sebagai Hari ke-1
+            d.setDate(d.getDate() + (daysNum - 1))
+            updated.tanggal_selesai = d.toISOString().split('T')[0]
+          }
+        }
+      }
+
+      return updated
+    })
+
     if (errors[name]) setErrors((prev) => ({ ...prev, [name]: null }))
+    if (name === 'timeline' || name === 'tanggal_mulai') {
+      if (errors.tanggal_selesai) setErrors((prev) => ({ ...prev, tanggal_selesai: null }))
+    }
   }
 
   const validate = () => {
     const newErrors = {}
     if (!form.nama.trim()) newErrors.nama = 'Nama wajib diisi'
+    if (!negara) newErrors.tempat_magang = 'Negara wajib terpilih'
+    if (negara && !provinsi) newErrors.tempat_magang = 'Provinsi wajib terpilih'
+    if (provinsi && !kota) newErrors.tempat_magang = 'Kota wajib terpilih'
+
     if (form.timeline !== '' && (isNaN(Number(form.timeline)) || Number(form.timeline) < 0))
       newErrors.timeline = 'Timeline harus berupa angka positif'
     if (form.tanggal_mulai && form.tanggal_selesai && form.tanggal_selesai < form.tanggal_mulai)
@@ -79,10 +152,15 @@ export function MagangForm({ isOpen, onClose, onSubmit, initialData, loading }) 
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (!validate()) return
+
+    const locationStr = (kota && provinsi && negara)
+      ? `${kota}, ${provinsi}, ${negara}`
+      : form.tempat_magang.trim() || 'Indonesia'
+
     const payload = {
       nama: form.nama.trim(),
       timeline: form.timeline !== '' ? Number(form.timeline) : 0,
-      tempat_magang: form.tempat_magang.trim(),
+      tempat_magang: locationStr,
       tanggal_mulai: form.tanggal_mulai,
       tanggal_selesai: form.tanggal_selesai,
     }
@@ -100,7 +178,7 @@ export function MagangForm({ isOpen, onClose, onSubmit, initialData, loading }) 
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
       style={{
-        backgroundColor: visible ? 'rgba(2,6,23,0.75)' : 'rgba(2,6,23,0)',
+        backgroundColor: visible ? 'rgba(15,23,42,0.45)' : 'rgba(15,23,42,0)',
         backdropFilter: visible ? 'blur(8px)' : 'blur(0px)',
         transition: 'background-color 300ms ease, backdrop-filter 300ms ease',
       }}
@@ -112,16 +190,16 @@ export function MagangForm({ isOpen, onClose, onSubmit, initialData, loading }) 
           opacity: visible ? 1 : 0,
           transition: 'all 300ms cubic-bezier(0.22,1,0.36,1)',
         }}
-        className="relative w-full max-w-lg overflow-hidden rounded-3xl border border-slate-700/60 bg-slate-900 shadow-2xl shadow-black/60"
+        className="relative w-full max-w-lg overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl modal-pop"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Gradient header accent */}
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-violet-500 to-transparent" />
+        <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#4285F4] via-[#34A853] to-[#FBBC05]" />
 
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-slate-800 px-6 py-5">
+        <div className="flex items-center justify-between border-b border-slate-100 px-6 py-5 bg-slate-50/50">
           <div>
-            <h2 className="text-base font-semibold text-slate-100">
+            <h2 className="text-base font-bold text-slate-800 tracking-tight">
               {isEdit ? 'Edit Data Magang' : 'Tambah Data Magang'}
             </h2>
             <p className="mt-0.5 text-xs text-slate-500">
@@ -130,7 +208,7 @@ export function MagangForm({ isOpen, onClose, onSubmit, initialData, loading }) 
           </div>
           <button
             onClick={handleClose}
-            className="flex h-8 w-8 items-center justify-center rounded-xl text-slate-500 transition hover:bg-slate-800 hover:text-slate-300"
+            className="flex h-8 w-8 items-center justify-center rounded-xl text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 cursor-pointer"
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} className="h-4 w-4">
               <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
@@ -153,17 +231,66 @@ export function MagangForm({ isOpen, onClose, onSubmit, initialData, loading }) 
             />
           </InputField>
 
-          <InputField label="Tempat Magang" id="tempat_magang" error={errors.tempat_magang}>
-            <input
-              id="tempat_magang"
-              name="tempat_magang"
-              type="text"
-              placeholder="Contoh: Jakarta Selatan"
-              value={form.tempat_magang}
-              onChange={handleChange}
-              className={inputClass(false)}
-            />
-          </InputField>
+          {/* Cascading Location Selector */}
+          <div className="flex flex-col gap-3.5 border border-slate-100 rounded-2xl p-4 bg-slate-50/30">
+            <p className="text-xs font-bold uppercase tracking-widest text-slate-400">Tempat & Lokasi Magang</p>
+            
+            {/* 1. Negara */}
+            <InputField label="Negara" id="negara" required error={errors.tempat_magang}>
+              <select
+                id="negara"
+                value={negara}
+                onChange={(e) => {
+                  setNegara(e.target.value)
+                  setProvinsi('')
+                  setKota('')
+                  if (errors.tempat_magang) setErrors((prev) => ({ ...prev, tempat_magang: null }))
+                }}
+                className={inputClass(errors.tempat_magang)}
+              >
+                <option value="">-- Pilih Negara --</option>
+                {Object.keys(DATA_WILAYAH).map((n) => (
+                  <option key={n} value={n}>{n}</option>
+                ))}
+              </select>
+            </InputField>
+
+            {/* 2. Provinsi & Kota (Grid 2-Kolom) */}
+            <div className="grid grid-cols-2 gap-3">
+              <InputField label="Provinsi" id="provinsi" required>
+                <select
+                  id="provinsi"
+                  value={provinsi}
+                  disabled={!negara}
+                  onChange={(e) => {
+                    setProvinsi(e.target.value)
+                    setKota('')
+                  }}
+                  className={inputClass(false) + ' disabled:opacity-50'}
+                >
+                  <option value="">-- Pilih Provinsi --</option>
+                  {negara && Object.keys(DATA_WILAYAH[negara] || {}).map((p) => (
+                    <option key={p} value={p}>{p}</option>
+                  ))}
+                </select>
+              </InputField>
+
+              <InputField label="Kota / Kabupaten" id="kota" required>
+                <select
+                  id="kota"
+                  value={kota}
+                  disabled={!provinsi}
+                  onChange={(e) => setKota(e.target.value)}
+                  className={inputClass(false) + ' disabled:opacity-50'}
+                >
+                  <option value="">-- Pilih Kota --</option>
+                  {negara && provinsi && (DATA_WILAYAH[negara][provinsi] || []).map((k) => (
+                    <option key={k} value={k}>{k}</option>
+                  ))}
+                </select>
+              </InputField>
+            </div>
+          </div>
 
           <InputField label="Timeline (hari)" id="timeline" error={errors.timeline}>
             <input
@@ -186,7 +313,7 @@ export function MagangForm({ isOpen, onClose, onSubmit, initialData, loading }) 
                 type="date"
                 value={form.tanggal_mulai}
                 onChange={handleChange}
-                className={inputClass(errors.tanggal_mulai) + ' cursor-pointer [color-scheme:dark]'}
+                className={inputClass(errors.tanggal_mulai) + ' cursor-pointer'}
               />
             </InputField>
 
@@ -198,18 +325,18 @@ export function MagangForm({ isOpen, onClose, onSubmit, initialData, loading }) 
                 value={form.tanggal_selesai}
                 min={form.tanggal_mulai || undefined}
                 onChange={handleChange}
-                className={inputClass(errors.tanggal_selesai) + ' cursor-pointer [color-scheme:dark]'}
+                className={inputClass(errors.tanggal_selesai) + ' cursor-pointer'}
               />
             </InputField>
           </div>
 
           {/* Footer */}
-          <div className="mt-2 flex items-center justify-end gap-2 border-t border-slate-800 pt-4">
+          <div className="mt-2 flex items-center justify-end gap-3 border-t border-slate-100 pt-5">
             <button
               type="button"
               onClick={handleClose}
               disabled={loading}
-              className="rounded-xl border border-slate-700 px-5 py-2.5 text-sm font-medium text-slate-400 transition hover:border-slate-600 hover:text-slate-200 disabled:opacity-50"
+              className="rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-600 shadow-sm transition hover:bg-slate-50 hover:text-slate-800 disabled:opacity-50 cursor-pointer"
             >
               Batal
             </button>
@@ -217,7 +344,7 @@ export function MagangForm({ isOpen, onClose, onSubmit, initialData, loading }) 
               type="submit"
               id={isEdit ? 'magang-save-btn' : 'magang-submit-btn'}
               disabled={loading}
-              className="relative flex min-w-[120px] items-center justify-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-violet-900/40 transition duration-200 hover:-translate-y-0.5 hover:shadow-violet-900/60 disabled:cursor-not-allowed disabled:opacity-70"
+              className="relative flex min-w-[140px] items-center justify-center gap-2 overflow-hidden rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-600/20 transition duration-300 hover:-translate-y-0.5 hover:shadow-blue-600/30 hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-70 cursor-pointer"
             >
               {loading ? (
                 <>
