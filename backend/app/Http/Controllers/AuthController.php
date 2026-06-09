@@ -12,13 +12,25 @@ class AuthController extends Controller
 {
     public function googleLogin(Request $request)
     {
-        $request->validate([
+        Log::info("Google login request");
+
+        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
             'access_token' => 'required|string',
         ]);
 
+        if ($validator->fails()) {
+            Log::error('Validation failed: access_token is missing');
+            return response()->json([
+                'success' => false,
+                'message' => 'Access token is missing or invalid',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        Log::info('access token : ' . $request->access_token);
         try {
             $socialUser = Socialite::driver('google')->userFromToken($request->access_token);
-
+            Log::info('social user : ' . $socialUser->getEmail());
             $user = User::firstOrCreate(
                 ['email' => $socialUser->getEmail()],
                 [
@@ -45,6 +57,7 @@ class AuthController extends Controller
             ]);
         } catch (\Exception $e) {
             Log::error('Google login error: ' . $e->getMessage());
+            echo "Google login error: " . $e->getMessage();
             return response()->json(['success' => false, 'message' => 'Invalid credentials or token'], 401);
         }
     }
