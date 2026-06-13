@@ -14,7 +14,12 @@ return new class extends Migration
         Schema::create('timelines', function (Blueprint $table) {
             $table->id();
             $table->foreignId('magang_id')->constrained()->onDelete('cascade');
-            $table->string('description')->nullable();
+            $table->string('title');
+            $table->text('description')->nullable();
+            $table->integer('day_number')->nullable();
+            $table->json('ai_feedback')->nullable();
+            $table->string('ai_status', 20)->default('pending');
+            $table->timestamp('ai_analyzed_at')->nullable();
             $table->timestamps();
         });
     }
