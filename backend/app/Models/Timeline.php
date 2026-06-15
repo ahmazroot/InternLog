@@ -11,8 +11,21 @@ class Timeline extends Model
 
     protected $fillable = [
         'magang_id',
+        'title',
         'description',
+        'day_number',
+        'ai_feedback',
+        'ai_status',
+        'ai_analyzed_at',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'ai_feedback' => 'array',
+            'ai_analyzed_at' => 'datetime',
+        ];
+    }
 
     public function magang()
     {
