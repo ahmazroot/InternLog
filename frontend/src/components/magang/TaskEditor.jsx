@@ -299,7 +299,9 @@ export function TaskEditor({ magangId, day, startDate, onSaveSuccess }) {
 
         {/* Prompt helper */}
         <div className="task-editor-prompt">
-          <span className="prompt-emoji">✍️</span>
+          <span className="prompt-emoji">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-5 w-5 text-indigo-400"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          </span>
           <p>
             Catat apa yang kamu kerjakan hari ini — tugas, pembelajaran, atau kendala yang dihadapi.
           </p>
@@ -401,7 +403,10 @@ export function TaskEditor({ magangId, day, startDate, onSaveSuccess }) {
 
                 {/* Tantangan */}
                 <div className="ai-section tantangan-banner">
-                  <h4 className="ai-section-title">💡 Tantangan / Kendala</h4>
+                  <h4 className="ai-section-title flex items-center gap-1.5">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-4 w-4 text-amber-500"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    Tantangan / Kendala
+                  </h4>
                   <p className="ai-tantangan-text">
                     {dayData.ai_feedback.tantangan || 'Tidak disebutkan'}
                   </p>
@@ -415,13 +420,17 @@ export function TaskEditor({ magangId, day, startDate, onSaveSuccess }) {
               </div>
             ) : dayData?.ai_status === 'failed' ? (
               <div className="ai-failed-state">
-                <span className="ai-state-icon">⚠️</span>
+                <span className="ai-state-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-8 w-8 text-red-400"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              </span>
                 <p className="ai-state-text text-red-600 font-semibold">Analisis AI Gagal</p>
                 <p className="ai-state-sub">Gagal menganalisis catatan secara otomatis. Perbarui atau simpan ulang catatan untuk memicu analisis kembali.</p>
               </div>
             ) : (
               <div className="ai-pending-state">
-                <span className="ai-state-icon">⏳</span>
+                <span className="ai-state-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-8 w-8 text-slate-300"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              </span>
                 <p className="ai-state-text text-gray-500 font-semibold">Menunggu Input</p>
                 <p className="ai-state-sub">Silakan tulis aktivitas magang Anda hari ini dan klik tombol "Simpan Catatan" untuk memulai analisis AI otomatis.</p>
               </div>

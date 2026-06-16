@@ -129,7 +129,9 @@ function OverviewTimeline({ magang, timelines, filledDays, onSelectDay }) {
         
         {sortedTimelines.length === 0 ? (
           <div className="timeline-empty-state">
-            <span className="timeline-empty-icon">📂</span>
+            <span className="timeline-empty-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="h-10 w-10 text-slate-300"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+          </span>
             <p className="timeline-empty-title">Belum ada catatan aktivitas</p>
             <p className="timeline-empty-sub">
               Pilih salah satu hari di atas atau di Day Selector untuk mulai mencatat kegiatan magang Anda hari ini.
@@ -252,7 +254,9 @@ function OverviewTimeline({ magang, timelines, filledDays, onSelectDay }) {
 
                           {/* Tantangan Banner */}
                           <div className="ai-tantangan">
-                            <span className="tantangan-icon">💡</span>
+                            <span className="tantangan-icon">
+                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-3.5 w-3.5 text-amber-500"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                            </span>
                             <span className="tantangan-text">
                               <strong>Tantangan: </strong>{t.ai_feedback.tantangan || 'Tidak disebutkan'}
                             </span>
@@ -265,11 +269,13 @@ function OverviewTimeline({ magang, timelines, filledDays, onSelectDay }) {
                         </div>
                       ) : t.ai_status === 'failed' ? (
                         <div className="timeline-ai-status-panel failed">
-                          <span>⚠️ Analisis otomatis gagal. Anda dapat membuka editor dan menyimpan kembali catatan untuk mengulang analisis.</span>
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-4 w-4 text-red-400 shrink-0"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                          <span>Analisis otomatis gagal. Anda dapat membuka editor dan menyimpan kembali catatan untuk mengulang analisis.</span>
                         </div>
                       ) : (
                         <div className="timeline-ai-status-panel pending">
-                          <span>⏳ Catatan telah disimpan. Menunggu giliran analisis antrean AI otomatis...</span>
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-4 w-4 text-slate-400 shrink-0"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                          <span>Catatan telah disimpan. Menunggu giliran analisis antrean AI otomatis...</span>
                         </div>
                       )}
                     </div>

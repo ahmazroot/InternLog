@@ -168,6 +168,9 @@ const DOMAIN_CONFIGS = {
       Malang: [
         { nama_perusahaan: 'Malang Creative Center (MCC)', alamat: 'Jl. A. Yani, Blimbing, Malang', kontak: 'mcc.or.id', alasan_kecocokan: 'Pusat inkubator teknologi dan startup digital kreatif Jawa Timur.' }
       ],
+      Bali: [
+        { nama_perusahaan: 'Ubud Tech Space', alamat: 'Jl. Raya Sanggingan, Ubud, Bali', kontak: 'ubudtechspace.com', alasan_kecocokan: 'Hub kolaboratif engineering untuk pengembangan platform digital bernuansa lokal.' }
+      ],
       'Jawa Tengah': [
         { nama_perusahaan: 'Gameloft Indonesia (Yogyakarta)', alamat: 'Jl. H.O.S. Cokroaminoto, Wirobrajan, Yogyakarta', kontak: 'jobs.gameloft.com', alasan_kecocokan: 'Studio pengembangan game global terbesar di Indonesia Tengah.' },
         { nama_perusahaan: 'IDcloudhost Semarang', alamat: 'Jl. Jenderal Sudirman, Semarang', kontak: 'idcloudhost.com', alasan_kecocokan: 'Penyedia cloud hosting dan server infrastruktur nasional.' }
@@ -185,6 +188,13 @@ const DOMAIN_CONFIGS = {
       Malaysia: [
         { nama_perusahaan: 'Grab Malaysia', alamat: 'Grab Tower, Petaling Jaya, Selangor', kontak: 'careers.grab.com', alasan_kecocokan: 'Pusat rekayasa perangkat lunak terbesar bagi tim logistik Grab regional.' },
         { nama_perusahaan: 'Mindvalley Malaysia', alamat: 'Menara UOA, Bangsar, Kuala Lumpur', kontak: 'careers.mindvalley.com', alasan_kecocokan: 'Perusahaan teknologi pendidikan global dengan standar visual antarmuka premium.' }
+      ],
+      Australia: [
+        { nama_perusahaan: 'Atlassian Australia', alamat: 'George Street, Sydney, NSW', kontak: 'atlassian.com/careers', alasan_kecocokan: 'Pengembangan tools kolaborasi tim berskala enterprise global.' },
+        { nama_perusahaan: 'Canva Australia', alamat: 'Surry Hills, Sydney, NSW', kontak: 'canva.com/careers', alasan_kecocokan: 'Perusahaan platform desain visual terkemuka di dunia.' }
+      ],
+      Jepang: [
+        { nama_perusahaan: 'Sony Corporation (Tokyo)', alamat: 'Minato-ku, Tokyo', kontak: 'sony.com/en/careers', alasan_kecocokan: 'Raksasa elektronik dan hiburan global dengan standar kualitas sistem terbaik.' }
       ],
       default: [
         { nama_perusahaan: 'PT Telkom Indonesia', alamat: 'Kantor Wilayah Telekomunikasi Setempat', kontak: 'recruitment.telkom.co.id', alasan_kecocokan: 'Peluang magang dan karir IT infrastruktur nasional terbesar.' }
@@ -236,6 +246,9 @@ const DOMAIN_CONFIGS = {
       Malang: [
         { nama_perusahaan: 'Heroosoft Media Malang', alamat: 'Jl. Sigura-gura, Lowokwaru, Malang', kontak: 'contact@heroosoft.com', alasan_kecocokan: 'Digital branding agency lokal untuk optimasi engagement media sosial UMKM Malang.' }
       ],
+      Bali: [
+        { nama_perusahaan: 'Bali Creative Media', alamat: 'Jl. Sunset Road, Seminyak, Bali', kontak: 'balicreativemedia.com', alasan_kecocokan: 'Agensi desain visual dan promosi digital untuk industri hospitality.' }
+      ],
       'Jawa Tengah': [
         { nama_perusahaan: 'Dagadu Djokdja (Yogyakarta)', alamat: 'Jl. Gedongkuning, Umbulharjo, Yogyakarta', kontak: 'dagadu.co.id', alasan_kecocokan: 'Perusahaan kreatif legendaris dengan manajemen kampanye digital interaktif.' }
       ],
@@ -250,6 +263,12 @@ const DOMAIN_CONFIGS = {
       ],
       Malaysia: [
         { nama_perusahaan: 'Leo Burnett Malaysia', alamat: 'Menara Southpoint, Mid Valley City, Kuala Lumpur', kontak: 'careers.leoburnett.com', alasan_kecocokan: 'Agensi periklanan kreatif terkemuka di Asia Tenggara.' }
+      ],
+      Australia: [
+        { nama_perusahaan: 'Ogilvy Australia', alamat: 'Kent Street, Sydney, NSW', kontak: 'ogilvy.com.au', alasan_kecocokan: 'Agensi pemasaran global terkemuka untuk merancang strategi branding.' }
+      ],
+      Jepang: [
+        { nama_perusahaan: 'Dentsu Inc. Tokyo', alamat: 'Minato-ku, Tokyo', kontak: 'dentsu.co.jp', alasan_kecocokan: 'Jejaring agensi perklanan dan komunikasi pemasaran terbesar di Jepang.' }
       ],
       default: [
         { nama_perusahaan: 'Agensi Pemasaran Lokal', alamat: 'Pusat Area Komersial Terdekat', kontak: 'info@agensikreatif.com', alasan_kecocokan: 'Pengembangan identitas visual produk-produk UMKM regional.' }
@@ -566,10 +585,10 @@ export function getDomainConfig(domain) {
 export function getDomainMockFeedback(namaMagang, logsText = '') {
   const domain = detectDomain(namaMagang)
   const config = getDomainConfig(domain)
-  
+
   const text = logsText.trim()
   const score = text ? Math.min(5, Math.max(2, Math.ceil(text.length / 80))) : 3
-  
+
   const ringkasan = text
     ? `Berhasil merampungkan pekerjaan terkait: "${text.slice(0, 85)}..."`
     : `Melakukan pengerjaan tugas harian, eksplorasi modul kerja, dan dokumentasi aktivitas magang.`
@@ -577,7 +596,7 @@ export function getDomainMockFeedback(namaMagang, logsText = '') {
   // Ambil 2 hard & 2 soft skills secara dinamis
   const hard = config.hardSkills.slice(0, 2)
   const soft = config.softSkills.slice(0, 2)
-  
+
   return {
     tanggal_analisis: new Date().toISOString().split('T')[0],
     kategori_aktivitas: config.kategori,
@@ -598,10 +617,10 @@ export function getDomainMockFeedback(namaMagang, logsText = '') {
 export function getDomainMockWeekly(namaMagang, weekNumber, collectedLogs = []) {
   const domain = detectDomain(namaMagang)
   const config = getDomainConfig(domain)
-  
+
   const startDay = (Number(weekNumber) - 1) * 7 + 1
   const endDay = Number(weekNumber) * 7
-  
+
   const avgScore = collectedLogs.length > 0
     ? Number((collectedLogs.reduce((acc, l) => acc + (l.ai_feedback?.skor_produktivitas || 0), 0) / collectedLogs.length).toFixed(1))
     : 4.0
@@ -640,7 +659,7 @@ export function getDomainMockWeekly(namaMagang, weekNumber, collectedLogs = []) 
 export function getDomainMockFinalReport(namaMagang, magangInfo = {}, collectedLogs = []) {
   const domain = detectDomain(namaMagang || magangInfo.nama)
   const config = getDomainConfig(domain)
-  
+
   // Parse tempat_magang to retrieve "Kota, Provinsi, Negara"
   const locationParts = magangInfo.tempat_magang ? magangInfo.tempat_magang.split(', ') : []
   const city = locationParts[0] || 'Surabaya'
@@ -649,7 +668,7 @@ export function getDomainMockFinalReport(namaMagang, magangInfo = {}, collectedL
 
   // Normalisasi Kota Ke Hub Regional
   let normalizedCity = city
-  
+
   if (country === 'Indonesia') {
     // 1. Jabodetabek -> Jakarta Hub
     if (
@@ -696,6 +715,17 @@ export function getDomainMockFinalReport(namaMagang, magangInfo = {}, collectedL
     ) {
       normalizedCity = 'Makassar'
     }
+    // 6. Bali Hub
+    else if (
+      city === 'Denpasar' ||
+      city === 'Badung' ||
+      city === 'Gianyar' ||
+      city === 'Kuta' ||
+      city === 'Ubud' ||
+      province === 'Bali'
+    ) {
+      normalizedCity = 'Bali'
+    }
   }
 
   // Format list hard & soft skills
@@ -713,11 +743,15 @@ export function getDomainMockFinalReport(namaMagang, magangInfo = {}, collectedL
 
   // Resolve localized companies based on Country and normalizedCity
   let listPerusahaan = config.perusahaan['default']
-  
+
   if (country === 'Singapura' || country === 'Singapore') {
     listPerusahaan = config.perusahaan['Singapura'] || config.perusahaan['default']
   } else if (country === 'Malaysia') {
     listPerusahaan = config.perusahaan['Malaysia'] || config.perusahaan['default']
+  } else if (country === 'Australia') {
+    listPerusahaan = config.perusahaan['Australia'] || config.perusahaan['default']
+  } else if (country === 'Jepang') {
+    listPerusahaan = config.perusahaan['Jepang'] || config.perusahaan['default']
   } else if (country === 'Indonesia') {
     listPerusahaan = config.perusahaan[normalizedCity] || config.perusahaan['default']
   }
@@ -726,16 +760,16 @@ export function getDomainMockFinalReport(namaMagang, magangInfo = {}, collectedL
   const pencapaian = collectedLogs.length > 0
     ? collectedLogs.filter(l => l.ai_feedback?.skor_produktivitas >= 4).map(l => l.ai_feedback?.ringkasan_aktivitas).slice(0, 3)
     : [
-        `Berhasil menyempurnakan seluruh draf tugas di bidang ${config.kategori} secara konsisten.`,
-        'Mendapatkan umpan balik positif dari mentor magang lapangan atas disiplin kerja.'
-      ]
-      
+      `Berhasil menyempurnakan seluruh draf tugas di bidang ${config.kategori} secara konsisten.`,
+      'Mendapatkan umpan balik positif dari mentor magang lapangan atas disiplin kerja.'
+    ]
+
   const tantangan = collectedLogs.length > 0
     ? collectedLogs.map(l => l.ai_feedback?.tantangan).filter(t => t && t !== 'Tidak ada kendala berarti' && t !== 'Tidak disebutkan').slice(0, 3)
     : [
-        `Menyelaraskan alur kerja instansi dengan target waktu penyelesaian tugas di minggu-minggu awal.`,
-        'Memahami instruksi tugas bernilai kompleksitas tinggi dalam waktu singkat.'
-      ]
+      `Menyelaraskan alur kerja instansi dengan target waktu penyelesaian tugas di minggu-minggu awal.`,
+      'Memahami instruksi tugas bernilai kompleksitas tinggi dalam waktu singkat.'
+    ]
 
   if (pencapaian.length === 0) {
     pencapaian.push(`Berhasil merampungkan seluruh riwayat catatan harian magang di bidang ${config.kategori} dengan progress konsisten.`)

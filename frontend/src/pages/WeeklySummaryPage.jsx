@@ -354,15 +354,7 @@ export function WeeklySummaryPage({ user, onLogout }) {
                   </div>
                 </div>
                 
-                {/* Productivity Progress Bar */}
-                <div className="weekly-progress-wrap">
-                  <div className="progress-bar-track">
-                    <div
-                      className="progress-bar-fill"
-                      style={{ width: `${(result.summary.skor_produktivitas_rata_rata / 5) * 100}%` }}
-                    />
-                  </div>
-                </div>
+                {/* Progress bar disembunyikan agar lebih simple */}
 
                 <div className="ai-narration-wrap">
                   <h3 className="narration-title">Ringkasan AI Mingguan</h3>
@@ -421,11 +413,16 @@ export function WeeklySummaryPage({ user, onLogout }) {
 
               {/* Highlight Aktivitas */}
               <div className="weekly-highlights-card">
-                <h4 className="section-card-title">✨ Highlight Aktivitas Utama</h4>
+                <h4 className="section-card-title flex items-center gap-2">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-4 w-4 text-indigo-500"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                  Highlight Aktivitas Utama
+                </h4>
                 <ul className="highlight-list">
                   {result.summary.highlight_aktivitas?.map((act, idx) => (
                     <li key={idx}>
-                      <span className="bullet">✦</span>
+                      <span className="bullet">
+                        <svg viewBox="0 0 24 24" fill="currentColor" className="h-3 w-3 text-indigo-400"><circle cx="12" cy="12" r="4"/></svg>
+                      </span>
                       <span className="text">{act}</span>
                     </li>
                   ))}
@@ -435,11 +432,17 @@ export function WeeklySummaryPage({ user, onLogout }) {
               {/* Perkembangan & Rekomendasi */}
               <div className="weekly-development-grid">
                 <div className="dev-card success">
-                  <h4 className="dev-title text-emerald-800">🚀 Perkembangan Utama</h4>
+                  <h4 className="dev-title text-emerald-800 flex items-center gap-1.5">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-4 w-4 text-emerald-600"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                    Perkembangan Utama
+                  </h4>
                   <p className="dev-text">{result.summary.perkembangan_utama}</p>
                 </div>
                 <div className="dev-card warning">
-                  <h4 className="dev-title text-amber-800">💡 Area Perbaikan</h4>
+                  <h4 className="dev-title text-amber-800 flex items-center gap-1.5">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-4 w-4 text-amber-500"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    Area Perbaikan
+                  </h4>
                   <p className="dev-text">{result.summary.area_perbaikan}</p>
                 </div>
               </div>
