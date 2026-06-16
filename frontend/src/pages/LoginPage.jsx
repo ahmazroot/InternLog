@@ -303,7 +303,7 @@ export function LoginPage({ onLoginSuccess, onLoginError }) {
                         M
                       </div>
                       <div className="bg-yellow-50/80 border border-yellow-100/80 text-slate-700 rounded-2xl rounded-tl-none px-2 py-1.5 text-[9px] max-w-[110px] shadow-sm select-none">
-                        Laporan logbook bagus! 👍
+                        Laporan logbook bagus! <svg viewBox="0 0 24 24" fill="currentColor" className="h-3 w-3 inline-block text-yellow-500"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3v11z"/></svg>
                       </div>
                     </div>
                     {/* Student response speech bubble right with typing dots */}

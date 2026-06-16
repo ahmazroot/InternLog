@@ -7,6 +7,7 @@ import {
   useNavigate,
 } from 'react-router-dom'
 import { LoginPage } from './pages/LoginPage'
+import { LandingPage } from './pages/LandingPage'
 import { MagangPage } from './pages/MagangPage'
 import { MagangDetailPage } from './pages/MagangDetailPage'
 import { WeeklySummaryPage } from './pages/WeeklySummaryPage'
@@ -92,6 +93,12 @@ function AuthApp() {
 
   return (
     <Routes>
+      {/* ── Public landing page (always accessible) ── */}
+      <Route
+        path="/"
+        element={<LandingPage isAuthenticated={isAuthenticated} />}
+      />
+
       {/* Login */}
       <Route
         path="/login"
@@ -119,7 +126,6 @@ function AuthApp() {
       {/* Protected routes */}
       {isAuthenticated ? (
         <>
-          <Route path="/" element={<Navigate to="/magang" replace />} />
           <Route
             path="/magang"
             element={<MagangPage user={user} onLogout={handleLogout} />}
