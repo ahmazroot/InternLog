@@ -194,7 +194,13 @@ export function TaskEditor({ magangId, day, startDate, onSaveSuccess }) {
         localStorage.setItem(storageKey, JSON.stringify(updatedData))
         setDayData(updatedData)
       } else {
-        const savedRecord = await timelineService.saveDay(magangId, day, descriptionStr)
+        // Ekstrak title otomatis dari teks paragraf pertama (maks 50 karakter)
+        const firstBlockText = blocks
+          .map((b) => b.content?.map((c) => c.text || '').join('') || '')
+          .find((t) => t.trim().length > 0) || ''
+        const autoTitle = firstBlockText.trim().slice(0, 50) || `Catatan Hari ke-${day}`
+
+        const savedRecord = await timelineService.saveDay(magangId, day, descriptionStr, autoTitle)
         setDayData(savedRecord?.data ?? savedRecord)
       }
 
