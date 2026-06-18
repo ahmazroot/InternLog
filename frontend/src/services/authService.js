@@ -17,6 +17,10 @@ export const authService = {
   },
 
   fetchMe: async () => {
+    if (localStorage.getItem('demo_mode') === 'true') {
+      const user = localStorage.getItem('user')
+      return user ? JSON.parse(user) : null
+    }
     const response = await axiosInstance.get('/user/me')
     const user = response?.data?.data?.user
 
@@ -31,6 +35,8 @@ export const authService = {
   logout: () => {
     localStorage.removeItem('auth_token')
     localStorage.removeItem('user')
+    localStorage.removeItem('demo_mode')
+    localStorage.removeItem('mock_magang_items')
   },
 
   getUser: () => {
