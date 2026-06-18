@@ -8,12 +8,16 @@ use Illuminate\Support\Facades\Log;
 class AIService
 {
     private $openRouterApiKey;
+    private $geminiApiKey;
+    private $groqApiKey;
     private $primaryModel = 'google/gemini-1.5-flash';
     private $fallbackModel = 'llama-3.3-70b-versatile';
 
     public function __construct()
     {
         $this->openRouterApiKey = env('OPENROUTER_API_KEY');
+        $this->geminiApiKey = env('GEMINI_API_KEY');
+        $this->groqApiKey = env('GROQ_API_KEY');
     }
 
     public function analyzeDaily(string $catatanHarian)
@@ -62,7 +66,7 @@ Balas HANYA dalam format JSON berikut:
 }
 EOT;
 
-        return $this->callOpenRouter($systemPrompt, $userPrompt);
+        return $this->callAI($systemPrompt, $userPrompt);
     }
 
     public function generateWeeklySummary(array $timelineData)
@@ -112,7 +116,7 @@ Balas HANYA dalam format JSON berikut:
 }
 EOT;
 
-        return $this->callOpenRouter($systemPrompt, $userPrompt);
+        return $this->callAI($systemPrompt, $userPrompt);
     }
 
     public function generateFinalReport(array $timelineData, array $magangInfo)
@@ -174,26 +178,87 @@ EOT;
 
         $heavyModel = 'google/gemini-2.0-flash-001';
         
-        return $this->callOpenRouter($systemPrompt, $userPrompt, [$heavyModel, $this->fallbackModel]);
+        return $this->callAI($systemPrompt, $userPrompt, [$heavyModel, $this->fallbackModel]);
     }
 
-    private function callOpenRouter(string $systemPrompt, string $userPrompt, ?array $modelsToTry = null)
+    private function callAI(string $systemPrompt, string $userPrompt, ?array $openRouterModelsToTry = null)
     {
-        if (!$this->openRouterApiKey) {
-            throw new \Exception("OPENROUTER_API_KEY is not configured.");
+        // 1. Try OpenRouter (Utama)
+        if ($this->openRouterApiKey) {
+            $modelsToTry = $openRouterModelsToTry ?? [$this->primaryModel, $this->fallbackModel];
+
+            foreach ($modelsToTry as $model) {
+                try {
+                    $response = Http::withHeaders([
+                        'Authorization' => 'Bearer ' . $this->openRouterApiKey,
+                        'Content-Type' => 'application/json',
+                        'HTTP-Referer' => config('app.url'),
+                        'X-Title' => config('app.name'),
+                    ])->timeout(30)->post('https://openrouter.ai/api/v1/chat/completions', [
+                        'model' => $model,
+                        'messages' => [
+                            ['role' => 'system', 'content' => $systemPrompt],
+                            ['role' => 'user', 'content' => $userPrompt],
+                        ]
+                    ]);
+
+                    if ($response->successful()) {
+                        $content = $response->json('choices.0.message.content');
+                        return $this->cleanJsonOutput($content);
+                    }
+                    
+                    Log::warning("OpenRouter API request failed for model {$model}: " . $response->body());
+                } catch (\Exception $e) {
+                    Log::error("Exception when calling OpenRouter with model {$model}: " . $e->getMessage());
+                }
+            }
+        } else {
+            Log::warning("OPENROUTER_API_KEY is not configured, skipping OpenRouter.");
         }
 
-        $modelsToTry = $modelsToTry ?? [$this->primaryModel, $this->fallbackModel];
-
-        foreach ($modelsToTry as $model) {
+        // 2. Try Gemini Direct API (Fallback 1)
+        if ($this->geminiApiKey) {
             try {
+                Log::info("Attempting Gemini Direct API as Fallback 1");
                 $response = Http::withHeaders([
-                    'Authorization' => 'Bearer ' . $this->openRouterApiKey,
                     'Content-Type' => 'application/json',
-                    'HTTP-Referer' => config('app.url'),
-                    'X-Title' => config('app.name'),
-                ])->post('https://openrouter.ai/api/v1/chat/completions', [
-                    'model' => $model,
+                ])->timeout(30)->post('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' . $this->geminiApiKey, [
+                    'system_instruction' => [
+                        'parts' => [
+                            ['text' => $systemPrompt]
+                        ]
+                    ],
+                    'contents' => [
+                        [
+                            'parts' => [
+                                ['text' => $userPrompt]
+                            ]
+                        ]
+                    ]
+                ]);
+
+                if ($response->successful()) {
+                    $content = $response->json('candidates.0.content.parts.0.text');
+                    return $this->cleanJsonOutput($content);
+                }
+                
+                Log::warning("Gemini Direct API request failed: " . $response->body());
+            } catch (\Exception $e) {
+                Log::error("Exception when calling Gemini Direct API: " . $e->getMessage());
+            }
+        } else {
+            Log::warning("GEMINI_API_KEY is not configured, skipping Gemini Direct API.");
+        }
+
+        // 3. Try Groq Direct API (Fallback 2)
+        if ($this->groqApiKey) {
+            try {
+                Log::info("Attempting Groq Direct API as Fallback 2");
+                $response = Http::withHeaders([
+                    'Authorization' => 'Bearer ' . $this->groqApiKey,
+                    'Content-Type' => 'application/json',
+                ])->timeout(30)->post('https://api.groq.com/openai/v1/chat/completions', [
+                    'model' => 'llama-3.3-70b-versatile',
                     'messages' => [
                         ['role' => 'system', 'content' => $systemPrompt],
                         ['role' => 'user', 'content' => $userPrompt],
@@ -205,13 +270,15 @@ EOT;
                     return $this->cleanJsonOutput($content);
                 }
                 
-                Log::warning("OpenRouter API request failed for model {\$model}: " . $response->body());
+                Log::warning("Groq Direct API request failed: " . $response->body());
             } catch (\Exception $e) {
-                Log::error("Exception when calling OpenRouter with model {\$model}: " . $e->getMessage());
+                Log::error("Exception when calling Groq Direct API: " . $e->getMessage());
             }
+        } else {
+            Log::warning("GROQ_API_KEY is not configured, skipping Groq Direct API.");
         }
 
-        throw new \Exception("All AI models failed to generate a response.");
+        throw new \Exception("All AI models and fallback providers failed to generate a response.");
     }
 
     private function cleanJsonOutput(?string $content): array
