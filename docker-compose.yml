@@ -5,12 +5,10 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        - VITE_API_BASE_URL=${VITE_API_BASE_URL:-http://api.internlog.cc.cd/api}
     container_name: internlog_frontend
-    ports:
-      - "5173:5173"
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
+    restart: always
     networks:
       - internlog_network
 
@@ -19,64 +17,30 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     container_name: internlog_backend
-    ports:
-      - "8000:8000"
+    restart: always
     volumes:
-      - ./backend:/var/www/html
+      - ./backend/.env:/var/www/html/.env
     environment:
-      APP_NAME: InternLog
-      APP_ENV: local
-      APP_DEBUG: "true"
-      APP_URL: http://localhost:8000
-      DB_CONNECTION: mysql
-      DB_HOST: db
-      DB_PORT: 3306
-      DB_DATABASE: ${DB_DATABASE:-internlog}
-      DB_USERNAME: ${DB_USERNAME:-internlog}
-      DB_PASSWORD: ${DB_PASSWORD:-secret}
-    depends_on:
-      db:
-        condition: service_healthy
+      APP_ENV: production
+      APP_DEBUG: "false"
+      APP_URL: ${APP_URL:-http://api.internlog.cc.cd}
     networks:
       - internlog_network
 
-  db:
-    image: mysql:8.0
-    container_name: internlog_db
+  nginx:
+    image: nginx:alpine
+    container_name: internlog_nginx
+    restart: always
     ports:
-      - "3306:3306"
-    environment:
-      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-rootsecret}
-      MYSQL_DATABASE: ${DB_DATABASE:-internlog}
-      MYSQL_USER: ${DB_USERNAME:-internlog}
-      MYSQL_PASSWORD: ${DB_PASSWORD:-secret}
+      - "80:80"
     volumes:
-      - db_data:/var/lib/mysql
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - internlog_network
-
-  phpmyadmin:
-    image: phpmyadmin:latest
-    container_name: internlog_phpmyadmin
-    ports:
-      - "8080:80"
-    environment:
-      PMA_HOST: db
-      PMA_PORT: 3306
-      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-rootsecret}
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
-      - db
+      - frontend
+      - backend
     networks:
       - internlog_network
 
 networks:
   internlog_network:
     driver: bridge
-
-volumes:
-  db_data:
