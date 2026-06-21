@@ -11,9 +11,11 @@ export const timelineService = {
     return response.data
   },
 
-  saveDay: async (magangId, dayNumber, description) => {
+  saveDay: async (magangId, dayNumber, description, title) => {
     // description is a JSON string of BlockNote blocks
+    // title is auto-generated from the first paragraph (max 50 chars)
     const response = await axiosInstance.post(`/magang/${magangId}/day/${dayNumber}`, {
+      title: title || `Catatan Hari ke-${dayNumber}`,
       description
     })
     return response.data
