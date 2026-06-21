@@ -7,7 +7,11 @@ const DATA_WILAYAH = {
     "Jawa Tengah": ["Semarang", "Surakarta (Solo)", "Yogyakarta", "Magelang", "Tegal"],
     "Jawa Barat": ["Bandung", "Bogor", "Depok", "Bekasi", "Tangerang"],
     "Sumatera Utara": ["Medan", "Binjai", "Pematangsiantar", "Deli Serdang"],
-    "Sulawesi Selatan": ["Makassar", "Gowa", "Maros", "Parepare"]
+    "Sulawesi Selatan": ["Makassar", "Gowa", "Maros", "Parepare"],
+    "Bali": ["Denpasar", "Badung", "Gianyar", "Kuta", "Ubud"],
+    "Sumatera Barat": ["Padang", "Bukittinggi", "Payakumbuh"],
+    "Kalimantan Timur": ["Samarinda", "Balikpapan", "Bontang"],
+    "Sulawesi Utara": ["Manado", "Tomohon", "Bitung"]
   },
   Singapura: {
     "Central Region": ["Downtown Core", "Bukit Merah", "Queenstown"],
@@ -17,6 +21,14 @@ const DATA_WILAYAH = {
     "Kuala Lumpur": ["Wilayah Persekutuan"],
     "Selangor": ["Shah Alam", "Petaling Jaya", "Subang Jaya", "Klang"],
     "Johor": ["Johor Bahru", "Batu Pahat", "Muar"]
+  },
+  Australia: {
+    "New South Wales": ["Sydney", "Newcastle", "Wollongong"],
+    "Victoria": ["Melbourne", "Geelong", "Ballarat"]
+  },
+  Jepang: {
+    "Kanto": ["Tokyo", "Yokohama", "Chiba"],
+    "Kansai": ["Osaka", "Kyoto", "Kobe"]
   }
 }
 
@@ -68,12 +80,12 @@ export function MagangForm({ isOpen, onClose, onSubmit, initialData, loading }) 
       setForm(
         initialData
           ? {
-              nama: initialData.nama ?? '',
-              timeline: initialData.timeline ?? '',
-              tempat_magang: initialData.tempat_magang ?? '',
-              tanggal_mulai: initialData.tanggal_mulai ?? '',
-              tanggal_selesai: initialData.tanggal_selesai ?? '',
-            }
+            nama: initialData.nama ?? '',
+            timeline: initialData.timeline ?? '',
+            tempat_magang: initialData.tempat_magang ?? '',
+            tanggal_mulai: initialData.tanggal_mulai ?? '',
+            tanggal_selesai: initialData.tanggal_selesai ?? '',
+          }
           : EMPTY_FORM,
       )
       setErrors({})
@@ -234,7 +246,7 @@ export function MagangForm({ isOpen, onClose, onSubmit, initialData, loading }) 
           {/* Cascading Location Selector */}
           <div className="flex flex-col gap-3.5 border border-slate-100 rounded-2xl p-4 bg-slate-50/30">
             <p className="text-xs font-bold uppercase tracking-widest text-slate-400">Tempat & Lokasi Magang</p>
-            
+
             {/* 1. Negara */}
             <InputField label="Negara" id="negara" required error={errors.tempat_magang}>
               <select

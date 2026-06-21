@@ -129,7 +129,7 @@ export function FinalReportPage({ user, onLogout }) {
           if (hasGemini) {
             try {
               const geminiRaw = await geminiService.analyzeFinalReport(collectedLogs, currentMagang?.tempat_magang || 'Indonesia')
-              
+
               const isSoftSkill = (name) => {
                 const softs = ['komunikasi', 'mandiri', 'kemandirian', 'kepemimpinan', 'pemecahan masalah', 'kolaborasi', 'adaptasi', 'ketelitian', 'kerja keras', 'disiplin', 'proaktif', 'manajemen waktu']
                 return softs.includes(name.toLowerCase())
@@ -138,18 +138,18 @@ export function FinalReportPage({ user, onLogout }) {
               const softSkills = []
               const hardSkills = []
 
-              ;(geminiRaw.competencies || []).forEach((c) => {
-                const skillObj = {
-                  nama_skill: c.nama_skill,
-                  level_akhir: c.level || 'Kompeten',
-                  deskripsi_perkembangan: c.bukti || 'Menunjukkan perkembangan kompetensi yang sangat solid selama periode magang.'
-                }
-                if (isSoftSkill(c.nama_skill)) {
-                  softSkills.push(skillObj)
-                } else {
-                  hardSkills.push(skillObj)
-                }
-              })
+                ; (geminiRaw.competencies || []).forEach((c) => {
+                  const skillObj = {
+                    nama_skill: c.nama_skill,
+                    level_akhir: c.level || 'Kompeten',
+                    deskripsi_perkembangan: c.bukti || 'Menunjukkan perkembangan kompetensi yang sangat solid selama periode magang.'
+                  }
+                  if (isSoftSkill(c.nama_skill)) {
+                    softSkills.push(skillObj)
+                  } else {
+                    hardSkills.push(skillObj)
+                  }
+                })
 
               // Proteksi jika salah satu tipe kosong
               if (softSkills.length === 0) {
@@ -172,7 +172,7 @@ export function FinalReportPage({ user, onLogout }) {
                 .filter((l) => l.ai_feedback?.skor_produktivitas >= 4)
                 .map((l) => l.ai_feedback?.ringkasan_aktivitas)
                 .slice(0, 3)
-              
+
               const tantangan = collectedLogs
                 .map((l) => l.ai_feedback?.tantangan)
                 .filter((t) => t && t !== 'Tidak ada kendala berarti' && t !== 'Tidak disebutkan')
@@ -395,14 +395,15 @@ export function FinalReportPage({ user, onLogout }) {
 
           {/* Lock Screen UI (Jika Magang Belum Selesai) */}
           {isLocked && !loading && !error && (
-            <div className="bg-white border border-slate-200/80 rounded-3xl p-8 shadow-xl max-w-2xl mx-auto relative overflow-hidden animate-fade-in">
+            <div className="bg-white border border-slate-200/80 rounded-3xl p-8 shadow-xl max-w-2xl mx-auto relative overflow-hidden animate-fade-in hover-premium">
               <div className="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-amber-500 via-indigo-500 to-indigo-600" />
-              
-              <div className="flex flex-col items-center text-center py-6">
+              <div className="lock-screen-glow" />
+
+              <div className="flex flex-col items-center text-center py-6 relative z-10">
                 {/* Glowing Lock Icon */}
                 <div className="relative mb-6">
                   <div className="absolute inset-0 bg-amber-500/10 rounded-full blur-xl scale-125 animate-pulse" />
-                  <div className="relative flex h-16 w-16 items-center justify-center rounded-2xl bg-amber-50 border border-amber-200/50 shadow-inner text-amber-600">
+                  <div className="relative flex h-16 w-16 items-center justify-center rounded-2xl bg-amber-50 border border-amber-200/50 shadow-inner text-amber-600 glow-ring-indigo">
                     <Lock className="h-7 w-7" />
                   </div>
                 </div>
@@ -410,7 +411,7 @@ export function FinalReportPage({ user, onLogout }) {
                 <h3 className="text-xl font-bold text-slate-800 tracking-tight mb-2">
                   Laporan Akhir Belum Dapat Dibuat
                 </h3>
-                
+
                 <p className="text-sm text-slate-500 max-w-md mb-8 leading-relaxed">
                   Evaluasi kompetensi akhir dihitung secara kumulatif setelah masa magang berakhir. Hal ini dilakukan guna menjaga presisi analisis kecerdasan buatan terhadap seluruh riwayat aktivitas Anda.
                 </p>
@@ -421,15 +422,15 @@ export function FinalReportPage({ user, onLogout }) {
                     <span>Progress Magang</span>
                     <span className="text-slate-700">{lockProgress.actual} dari {lockProgress.total} Hari Tercatat</span>
                   </div>
-                  
+
                   {/* Progress Bar */}
                   <div className="w-full h-3 bg-slate-200 rounded-full overflow-hidden mb-2 shadow-inner">
-                    <div 
+                    <div
                       className="h-full bg-gradient-to-r from-amber-500 to-indigo-500 transition-all duration-500 ease-out rounded-full"
                       style={{ width: `${lockProgress.percentage}%` }}
                     />
                   </div>
-                  
+
                   <div className="flex justify-between items-center text-xs text-slate-500">
                     <span>Kemajuan: {lockProgress.percentage}%</span>
                     <span>Tersisa {lockProgress.total - lockProgress.actual} hari lagi</span>
@@ -444,7 +445,7 @@ export function FinalReportPage({ user, onLogout }) {
                   >
                     Kembali Mencatat Log Harian
                   </button>
-                  
+
                   <button
                     onClick={() => setBypassActive(true)}
                     className="w-full sm:flex-1 py-3 px-5 text-sm font-semibold text-slate-600 hover:text-indigo-600 bg-slate-100 hover:bg-indigo-50 border border-slate-200/50 rounded-xl transition cursor-pointer text-center"
@@ -452,7 +453,7 @@ export function FinalReportPage({ user, onLogout }) {
                     Bypass & Lihat Preview
                   </button>
                 </div>
-                
+
                 <span className="text-[10px] text-slate-400 mt-4 italic block">
                   *Gunakan tombol Bypass di atas khusus untuk kebutuhan demonstrasi/pengujian.
                 </span>
@@ -484,7 +485,7 @@ export function FinalReportPage({ user, onLogout }) {
                   <Calendar className="h-5 w-5 text-indigo-600" />
                   Perjalanan Magang
                 </h4>
-                
+
                 <div className="monthly-timeline">
                   {result.report.perjalanan_magang?.map((m, idx) => (
                     <div key={idx} className="monthly-timeline-item">
@@ -502,7 +503,7 @@ export function FinalReportPage({ user, onLogout }) {
 
               {/* Skills Kompetensi Badges */}
               <div className="weekly-skills-grid">
-                
+
                 {/* Hard Skills */}
                 <div className="skills-column-card">
                   <h4 className="column-title hard flex items-center gap-2">
@@ -549,7 +550,7 @@ export function FinalReportPage({ user, onLogout }) {
 
               {/* Pencapaian & Tantangan */}
               <div className="weekly-development-grid">
-                
+
                 {/* Pencapaian Terbaik */}
                 <div className="weekly-highlights-card" style={{ margin: 0 }}>
                   <h4 className="section-card-title flex items-center gap-2 text-emerald-800">
@@ -575,7 +576,9 @@ export function FinalReportPage({ user, onLogout }) {
                   <ul className="highlight-list">
                     {result.report.tantangan_terbesar?.map((item, idx) => (
                       <li key={idx}>
-                        <span className="bullet text-amber-600">💡</span>
+                        <span className="bullet text-amber-600">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-3.5 w-3.5 text-amber-500"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                        </span>
                         <span className="text text-gray-700">{item}</span>
                       </li>
                     ))}
@@ -586,7 +589,10 @@ export function FinalReportPage({ user, onLogout }) {
 
               {/* Refleksi Keseluruhan */}
               <div className="weekly-highlights-card">
-                <h4 className="section-card-title">📖 Refleksi Keseluruhan</h4>
+                <h4 className="section-card-title flex items-center gap-2">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-4 w-4 text-slate-500"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                  Refleksi Keseluruhan
+                </h4>
                 <p className="text-gray-700 leading-relaxed italic">
                   “{result.report.refleksi_keseluruhan}”
                 </p>
@@ -621,31 +627,31 @@ export function FinalReportPage({ user, onLogout }) {
                   <p className="text-xs text-gray-500 mb-4">
                     Kecerdasan Buatan merekomendasikan beberapa nama perusahaan teknologi nyata di wilayah terdekat Anda yang sangat relevan untuk Anda melamar pekerjaan:
                   </p>
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {result.report.rekomendasi_perusahaan.map((comp, idx) => {
                       const mapsSearchUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(comp.nama_perusahaan + ' ' + comp.alamat)}`;
-                      
+
                       return (
                         <div key={idx} className="border border-slate-100 rounded-2xl p-4 bg-slate-50/45 hover:border-indigo-100 hover:bg-indigo-50/10 transition-all duration-300 shadow-sm relative overflow-hidden flex flex-col justify-between">
                           <div className="absolute right-0 top-0 h-16 w-16 bg-gradient-to-bl from-indigo-500/5 to-transparent rounded-bl-full pointer-events-none" />
-                          
+
                           <div>
                             <div className="flex items-start justify-between gap-2 mb-2">
                               <h5 className="font-bold text-sm text-slate-800 leading-tight">{comp.nama_perusahaan}</h5>
                               <span className="text-[9px] font-bold text-indigo-600 bg-indigo-50 border border-indigo-100/60 rounded-full px-2 py-0.5 whitespace-nowrap">Relevan AI</span>
                             </div>
-                            
+
                             <p className="text-xs text-gray-600 mb-3 leading-relaxed">
                               {comp.alasan_kecocokan}
                             </p>
-                            
+
                             {/* Alamat */}
                             <div className="flex items-start gap-1.5 text-xs text-gray-500 mb-2">
                               <MapPin className="h-3.5 w-3.5 text-slate-400 shrink-0 mt-0.5" />
                               <span className="line-clamp-2">{comp.alamat}</span>
                             </div>
-                            
+
                             {/* Kontak */}
                             <div className="flex items-center gap-1.5 text-xs text-indigo-600 font-semibold mb-4">
                               <Globe className="h-3.5 w-3.5 text-indigo-400 shrink-0" />
